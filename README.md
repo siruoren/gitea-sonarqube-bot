@@ -2,17 +2,17 @@
 
 _Gitea SonarQube PR Bot_ is (obviously) a bot that receives messages from both SonarQube and Gitea to help developers 
 being productive. The idea behind this project is the missing ALM integration of Gitea in SonarQube. Unfortunately, 
-this won't be added in near future. _Gitea SonarQube PR Bot_ aims to fill the gap between working on pull requests and 
-being notified on quality changes. Luckily, both endpoints have a proper REST API to communicate with each others.
+this [won't be added in near future](https://github.com/SonarSource/sonarqube/pull/3248#issuecomment-701334327). 
+_Gitea SonarQube PR Bot_ aims to fill the gap between working on pull requests and being notified on quality changes. 
+Luckily, both endpoints have a proper REST API to communicate with each others.
 
 
 ## Workflow
 
-[add workflow schema]
+![Workflow](assets/workflow.png)
 
-- On PR create/PR push update; bot sets sonarqube status check to pending
-- Some tool analyses code and sends it to SonarQube; it does not matter whether this tool waits for the results
-- Webhook in SonarQube is sent to SonarQube/Gitea bot
+**Insights**
+
 - Bot activities
     - extract data from SonarQube
         - Read payload from hook post to receive project,branch/pr,quality-gate
@@ -25,7 +25,6 @@ being notified on quality changes. Luckily, both endpoints have a proper REST AP
     - listen on "/sq-bot review" comments  
       -> updates comment (/repos/{owner}/{repo}/issues/comments/{id})  
       -> updates status check (either failing/success)
-
 
 ## Authentication
 
