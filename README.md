@@ -58,3 +58,15 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 
 - Add user with necessary permissions
 - Create webhook on a project/organization pointing to the bot url (secure it with webhook secret)
+
+## Contributing
+
+Expected workflow is: Fork -> Patch -> Push -> Pull Request
+
+NOTES:
+
+- **Please read and follow the [CONTRIBUTORS GUIDE](CONTRIBUTING.md).**
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
