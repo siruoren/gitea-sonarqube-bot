@@ -1,0 +1,53 @@
+# Gitea related configuration. Necessary for adding/updating comments on repository pull requests
+gitea:
+  # API endpoint of your Gitea instance. Must be the API base path as shown in Swagger UI.
+  url: https://try.gitea.io/api/v1
+
+  # Created access token for the user that shall be used as bot account.
+  # User needs "Read project" permissions with access to "Pull Requests"
+  token: <...>
+
+  # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
+  # request will be ignored.
+  # The bot looks for `X-Gitea-Signature` header containing the sha256 hmac hash of the plain text secret. If the header
+  # exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be validated.
+  webhookSecret: {}
+  #  # either plain text
+  #  value: <...>
+  #  # or path to file containing the plain text secret
+  #  file: /path/to/gitea/webhook/secret
+
+  # List of repository the used Gitea account has access to and shall be handled by the bot. Other repository webhooks
+  # will be ignored.
+  # A repository specification contains the owner name and the repository name itself. The owner can be the name of a
+  # real account or an organization in which the repository is located.
+  repositories:
+    - owner: justusbunsi
+      name: example-repo
+    - owner: my-organization
+      name: example-repo
+
+
+# SonarQube related configuration. Necessary for requesting data from the API and processing the webhook.
+sonarqube:
+  # API endpoint of your SonarQube instance.
+  url: https://sonarcloud.io/api
+
+  # Created access token for the user that shall be used as bot account.
+  # User needs "Browse on project" permissions
+  token: <...>
+
+  # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
+  # request will be ignored.
+  # The bot looks for `X-Sonar-Webhook-HMAC-SHA256` header containing the sha256 hmac hash of the plain text secret.
+  # If the header exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be
+  # validated.
+  webhookSecret: {}
+  #  # either plain text
+  #  value: <...>
+  #  # or path to file containing the plain text secret
+  #  file: /path/to/gitea/webhook/secret
+
+  projects:
+    - project-1
+    - project-2

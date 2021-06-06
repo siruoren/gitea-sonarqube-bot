@@ -6,6 +6,14 @@ this [won't be added in near future](https://github.com/SonarSource/sonarqube/pu
 _Gitea SonarQube PR Bot_ aims to fill the gap between working on pull requests and being notified on quality changes. 
 Luckily, both endpoints have a proper REST API to communicate with each others.
 
+## Table of Contents
+
+- [Gitea SonarQube PR Bot](#gitea-sonarqube-pr-bot)
+  - [Workflow](#workflow)
+  - [Setup](#setup)
+  - [Bot configuration](#bot-configuration)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Workflow
 
@@ -26,38 +34,21 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
       -> updates comment (/repos/{owner}/{repo}/issues/comments/{id})  
       -> updates status check (either failing/success)
 
-## Authentication
+## Setup
 
-- Gitea
-    - User with token to access the REST API
-    - User needs "Read project" permissions with (??at least??) access to "Pull Requests"
-- SonarQube
-    - User with token to access the REST API
-    - User needs "Browse on project" permissions
+**SonarQube**  
+- Create a user and grant permissions to "Browse on project" for the desired project
+- Create a token for this user that will be used by the bot.
+- Create a webhook pointing to `https://<bot-url>/sonarqube`. Consider securing it with a secret.
 
+**Gitea**  
+- Create a user and grant permissions to "Read project" for the desired projects including access to "Pull Requests"
+- Create a token for this user that will be used by the bot.
+- Create a project/organization/system webhook pointing to `https://<bot-url>/gitea`. Consider securing it with a secret.
 
 ## Bot configuration
 
-- SonarQube
-    - Base URL
-    - Token
-    - Webhook Secret
-- Gitea
-    - Base URL
-    - Token
-    - Webhook Secret
-
-
-## SonarQube configuration
-
-- Add user with necessary permissions
-- Create webhook pointing to the bot url (secure it with webhook secret)
-
-
-## Gitea configuration
-
-- Add user with necessary permissions
-- Create webhook on a project/organization pointing to the bot url (secure it with webhook secret)
+See [config.example.yaml](config/config.example.yaml) for a full configuration specification and description.
 
 ## Contributing
 
