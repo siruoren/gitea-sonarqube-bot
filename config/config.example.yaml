@@ -48,6 +48,7 @@ sonarqube:
   #  # or path to file containing the plain text secret
   #  file: /path/to/gitea/webhook/secret
 
+  # List of project keys from inside SonarQube that should be handled. Webhooks containing other projects will be ignored.
   projects:
     - project-1
     - project-2
