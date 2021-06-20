@@ -2,6 +2,7 @@ package settings
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -22,27 +23,35 @@ var (
 	Gitea GiteaConfig
 )
 
-func Load(configPath string) {
+func init() {
 	viper.SetConfigName("config.yaml")
 	viper.SetConfigType("yaml")
+	viper.SetEnvPrefix("prbot")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AllowEmptyEnv(true)
+	viper.AutomaticEnv()
+}
+
+func Load(configPath string) {
 	viper.AddConfigPath(configPath)
 
 	err := viper.ReadInConfig()
-
 	if err != nil {
 		panic(fmt.Errorf("Fatal error while reading config file: %w \n", err))
 	}
 
-	var giteaConfig GiteaConfig
-
-	if viper.Sub("gitea") == nil {
+	if viper.IsSet("gitea") == false {
 		panic("Gitea not configured")
 	}
 
-	err = viper.UnmarshalKey("gitea", &giteaConfig)
-	if err != nil {
-		panic(fmt.Errorf("Unable to decode into struct, %v", err))
+	var fullConfig struct {
+		Gitea GiteaConfig
 	}
 
-	Gitea = giteaConfig
+	err = viper.Unmarshal(&fullConfig)
+	if err != nil {
+		panic(fmt.Errorf("Unable to load config into struct, %v", err))
+	}
+
+	Gitea = fullConfig.Gitea
 }
