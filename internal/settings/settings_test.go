@@ -9,16 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var defaultConfig []byte = []byte(
+var defaultConfigInlineSecrets []byte = []byte(
 `gitea:
   url: https://example.com/gitea
   token: 1337
-  webhookSecret: {}
+  webhookSecret: ""
   repositories: []
 sonarqube:
   url: https://example.com/sonarqube
   token: 42
-  webhookSecret: {}
+  webhookSecret: ""
   projects: []
 `)
 
@@ -38,7 +38,27 @@ func TestLoadWithMissingFile(t *testing.T) {
 }
 
 func TestLoadWithExistingFile(t *testing.T) {
-	WriteConfigFile(t, defaultConfig)
+	WriteConfigFile(t, defaultConfigInlineSecrets)
 
 	assert.NotPanics(t, func() { Load(os.TempDir()) }, "Unexpected panic while reading existing file")
+}
+
+func TestLoadWithMissingGiteaStructure(t *testing.T) {
+	WriteConfigFile(t, []byte(``))
+
+	assert.Panics(t, func() { Load(os.TempDir()) }, "No panic when Gitea is not configured")
+}
+
+func TestLoadGiteaStructure(t *testing.T) {
+	WriteConfigFile(t, defaultConfigInlineSecrets)
+	Load(os.TempDir())
+
+	expected := &GiteaConfig{
+		Url: "https://example.com/gitea",
+		Token: "1337",
+		WebhookSecret: "",
+		Repositories: []GiteaRepository{},
+	}
+
+	assert.True(t, assert.ObjectsAreEqualValues(&Gitea, expected))
 }
