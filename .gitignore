@@ -1,5 +1,5 @@
-.git/
-.idea/
-node_modules/
-vendor/
-config/
+/.git/
+/.idea/
+/config/
+/vendor/
+/gitea-sonarqube-bot

@@ -17,7 +17,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 
 ## Workflow
 
-![Workflow](assets/workflow.png)
+![Workflow](docs/workflow.png)
 
 **Insights**
 
