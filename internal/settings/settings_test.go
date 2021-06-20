@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var defaultConfig []byte = []byte(`
-gitea:
+var defaultConfig []byte = []byte(
+`gitea:
   url: https://example.com/gitea
   token: 1337
   webhookSecret: {}
