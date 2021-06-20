@@ -5,15 +5,14 @@ gitea:
 
   # Created access token for the user that shall be used as bot account.
   # User needs "Read project" permissions with access to "Pull Requests"
-  token: <...>
+  token: ""
 
   # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
   # request will be ignored.
   # The bot looks for `X-Gitea-Signature` header containing the sha256 hmac hash of the plain text secret. If the header
   # exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be validated.
-  webhookSecret: {}
-  #  # either plain text
-  #  value: <...>
+  webhookSecret:
+    value: ""
   #  # or path to file containing the plain text secret
   #  file: /path/to/gitea/webhook/secret
 
@@ -35,18 +34,17 @@ sonarqube:
 
   # Created access token for the user that shall be used as bot account.
   # User needs "Browse on project" permissions
-  token: <...>
+  token: ""
 
   # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
   # request will be ignored.
   # The bot looks for `X-Sonar-Webhook-HMAC-SHA256` header containing the sha256 hmac hash of the plain text secret.
   # If the header exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be
   # validated.
-  webhookSecret: {}
-  #  # either plain text
-  #  value: <...>
+  webhookSecret:
+    value: ""
   #  # or path to file containing the plain text secret
-  #  file: /path/to/gitea/webhook/secret
+  #  file: /path/to/sonarqube/webhook/secret
 
   # List of project keys from inside SonarQube that should be handled. Webhooks containing other projects will be ignored.
   projects:
