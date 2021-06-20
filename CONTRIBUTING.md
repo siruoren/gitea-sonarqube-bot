@@ -4,6 +4,7 @@
 
 - [Contribution Guidelines](#contribution-guidelines)
     - [Setup development environment](#setup-development-environment)
+    - [Testing](#testing)
     - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
 
 ## Setup development environment
@@ -12,11 +13,20 @@
 # Build docker environment
 docker build -t gitea-sonarqube-pr-bot/dev -f contrib/Dockerfile contrib
 
-# start the environment
+# Start the environment
 docker run --rm -it -p 9100:8080 -v "$(pwd):/projects" gitea-sonarqube-pr-bot/dev
 
+# Build the binary
+go build ./cmd/gitea-sonarqube-bot
+
 # Start the server
-go run main.go
+./gitea-sonarqube-bot
+```
+
+## Testing
+
+```bash
+go test ./...
 ```
 
 ## Developer Certificate of Origin (DCO)
