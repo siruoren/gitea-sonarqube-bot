@@ -5,7 +5,10 @@ gitea:
 
   # Created access token for the user that shall be used as bot account.
   # User needs "Read project" permissions with access to "Pull Requests"
-  token: ""
+  token:
+    value: ""
+  #  # or path to file containing the plain text secret
+  #  file: /path/to/gitea/token
 
   # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
   # request will be ignored.
@@ -35,7 +38,10 @@ sonarqube:
 
   # Created access token for the user that shall be used as bot account.
   # User needs "Browse on project" permissions
-  token: ""
+  token:
+    value: ""
+  #  # or path to file containing the plain text secret
+  #  file: /path/to/sonarqube/token
 
   # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
   # request will be ignored.

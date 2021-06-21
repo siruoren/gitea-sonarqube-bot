@@ -146,35 +146,44 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 }
 
 func TestLoadStructureWithFileReferenceResolving(t *testing.T) {
-	giteaSecretFile := path.Join(os.TempDir(), "webhook-secret-gitea")
-	sonarqubeSecretFile := path.Join(os.TempDir(), "webhook-secret-sonarqube")
+	giteaWebhookSecretFile := path.Join(os.TempDir(), "webhook-secret-gitea")
+	_ = ioutil.WriteFile(giteaWebhookSecretFile, []byte(`gitea-totally-secret`),0444)
 
-	_ = ioutil.WriteFile(giteaSecretFile, []byte(`gitea-totally-secret`),0444)
-	_ = ioutil.WriteFile(sonarqubeSecretFile, []byte(`sonarqube-totally-secret`),0444)
+	giteaTokenFile := path.Join(os.TempDir(), "token-secret-gitea")
+	_ = ioutil.WriteFile(giteaTokenFile, []byte(`d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565`),0444)
+
+	sonarqubeWebhookSecretFile := path.Join(os.TempDir(), "webhook-secret-sonarqube")
+	_ = ioutil.WriteFile(sonarqubeWebhookSecretFile, []byte(`sonarqube-totally-secret`),0444)
+
+	sonarqubeTokenFile := path.Join(os.TempDir(), "token-secret-sonarqube")
+	_ = ioutil.WriteFile(sonarqubeTokenFile, []byte(`a09eb5785b25bb2cbacf48808a677a0709f02d8e`),0444)
 
 	WriteConfigFile(t, []byte(
 `gitea:
   url: https://example.com/gitea
   token:
-    value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
+    value: fake-gitea-token
   repositories: []
 sonarqube:
   url: https://example.com/sonarqube
   token:
-    value: a09eb5785b25bb2cbacf48808a677a0709f02d8e
+    value: fake-sonarqube-token
   projects: []
 `))
-	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRETFILE", giteaSecretFile)
-	os.Setenv("PRBOT_SONARQUBE_WEBHOOK_SECRETFILE", sonarqubeSecretFile)
+	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRETFILE", giteaWebhookSecretFile)
+	os.Setenv("PRBOT_GITEA_TOKEN_FILE", giteaTokenFile)
+	os.Setenv("PRBOT_SONARQUBE_WEBHOOK_SECRETFILE", sonarqubeWebhookSecretFile)
+	os.Setenv("PRBOT_SONARQUBE_TOKEN_FILE", sonarqubeTokenFile)
 
 	expectedGitea := GiteaConfig{
 		Url: "https://example.com/gitea",
 		Token: Token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
+			File: giteaTokenFile,
 		},
 		Webhook: Webhook{
 			Secret: "gitea-totally-secret",
-			SecretFile: giteaSecretFile,
+			SecretFile: giteaWebhookSecretFile,
 		},
 		Repositories: []GiteaRepository{},
 	}
@@ -183,10 +192,11 @@ sonarqube:
 		Url: "https://example.com/sonarqube",
 		Token: Token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
+			File: sonarqubeTokenFile,
 		},
 		Webhook: Webhook{
 			Secret: "sonarqube-totally-secret",
-			SecretFile: sonarqubeSecretFile,
+			SecretFile: sonarqubeWebhookSecretFile,
 		},
 		Projects: []string{},
 	}
@@ -196,9 +206,13 @@ sonarqube:
 	assert.EqualValues(t, expectedSonarQube, SonarQube)
 
 	t.Cleanup(func() {
-		os.Remove(giteaSecretFile)
-		os.Remove(sonarqubeSecretFile)
+		os.Remove(giteaWebhookSecretFile)
+		os.Remove(giteaTokenFile)
+		os.Remove(sonarqubeWebhookSecretFile)
+		os.Remove(sonarqubeTokenFile)
 		os.Unsetenv("PRBOT_GITEA_WEBHOOK_SECRETFILE")
+		os.Unsetenv("PRBOT_GITEA_TOKEN_FILE")
 		os.Unsetenv("PRBOT_SONARQUBE_WEBHOOK_SECRETFILE")
+		os.Unsetenv("PRBOT_SONARQUBE_TOKEN_FILE")
 	})
 }

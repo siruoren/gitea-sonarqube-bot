@@ -69,7 +69,11 @@ func ApplyConfigDefaults() {
 	viper.SetDefault("sonarqube.projects", []string{})
 }
 
-func ReadSecretFile(file string) string {
+func ReadSecretFile(file string, defaultValue string) (string) {
+	if file == "" {
+		return defaultValue
+	}
+
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		panic(fmt.Errorf("Cannot read '%s' or it is no regular file. %w", file, err))
@@ -99,11 +103,8 @@ func Load(configPath string) {
 	Gitea = fullConfig.Gitea
 	SonarQube = fullConfig.SonarQube
 
-	if Gitea.Webhook.SecretFile != "" {
-		Gitea.Webhook.Secret = ReadSecretFile(Gitea.Webhook.SecretFile)
-	}
-
-	if SonarQube.Webhook.SecretFile != "" {
-		SonarQube.Webhook.Secret = ReadSecretFile(SonarQube.Webhook.SecretFile)
-	}
+	Gitea.Webhook.Secret = ReadSecretFile(Gitea.Webhook.SecretFile, Gitea.Webhook.Secret)
+	Gitea.Token.Value = ReadSecretFile(Gitea.Token.File, Gitea.Token.Value)
+	SonarQube.Webhook.Secret = ReadSecretFile(SonarQube.Webhook.SecretFile, SonarQube.Webhook.Secret)
+	SonarQube.Token.Value = ReadSecretFile(SonarQube.Token.File, SonarQube.Token.Value)
 }
