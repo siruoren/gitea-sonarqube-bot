@@ -13,6 +13,11 @@ type GiteaRepository struct {
 	Name string
 }
 
+type Token struct {
+	Value string
+	File string
+}
+
 type Webhook struct {
 	Secret string
 	SecretFile string
@@ -20,15 +25,15 @@ type Webhook struct {
 
 type GiteaConfig struct {
 	Url string
-	Token string
-	Webhook Webhook `mapstructure:"webhook"`
+	Token Token
+	Webhook Webhook
 	Repositories []GiteaRepository
 }
 
 type SonarQubeConfig struct {
 	Url string
-	Token string
-	Webhook Webhook `mapstructure:"webhook"`
+	Token Token
+	Webhook Webhook
 	Projects []string
 }
 
@@ -50,12 +55,15 @@ func init() {
 
 func ApplyConfigDefaults() {
 	viper.SetDefault("gitea.url", "")
-	viper.SetDefault("gitea.token", "")
+	viper.SetDefault("gitea.token.value", "")
+	viper.SetDefault("gitea.token.file", "")
 	viper.SetDefault("gitea.webhook.secret", "")
 	viper.SetDefault("gitea.webhook.secretFile", "")
 	viper.SetDefault("gitea.repositories", []GiteaRepository{})
+
 	viper.SetDefault("sonarqube.url", "")
-	viper.SetDefault("sonarqube.token", "")
+	viper.SetDefault("sonarqube.token.value", "")
+	viper.SetDefault("sonarqube.token.file", "")
 	viper.SetDefault("sonarqube.webhook.secret", "")
 	viper.SetDefault("sonarqube.webhook.secretFile", "")
 	viper.SetDefault("sonarqube.projects", []string{})

@@ -12,7 +12,8 @@ import (
 var defaultConfigInlineSecrets []byte = []byte(
 `gitea:
   url: https://example.com/gitea
-  token: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
+  token:
+    value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
   webhook:
     secret: haxxor-gitea-secret
   repositories:
@@ -20,7 +21,8 @@ var defaultConfigInlineSecrets []byte = []byte(
       name: a-repository-name
 sonarqube:
   url: https://example.com/sonarqube
-  token: a09eb5785b25bb2cbacf48808a677a0709f02d8e
+  token:
+    value: a09eb5785b25bb2cbacf48808a677a0709f02d8e
   webhook:
     secret: haxxor-sonarqube-secret
   projects: []
@@ -53,7 +55,9 @@ func TestLoadGiteaStructure(t *testing.T) {
 
 	expected := GiteaConfig{
 		Url: "https://example.com/gitea",
-		Token: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
+		Token: Token{
+			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
+		},
 		Webhook: Webhook{
 			Secret: "haxxor-gitea-secret",
 		},
@@ -70,13 +74,15 @@ func TestLoadGiteaStructure(t *testing.T) {
 
 func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRET", "injected-webhook-secret")
-	os.Setenv("PRBOT_GITEA_TOKEN", "injected-token")
+	os.Setenv("PRBOT_GITEA_TOKEN_VALUE", "injected-token")
 	WriteConfigFile(t, defaultConfigInlineSecrets)
 	Load(os.TempDir())
 
 	expected := GiteaConfig{
 		Url: "https://example.com/gitea",
-		Token: "injected-token",
+		Token: Token{
+			Value: "injected-token",
+		},
 		Webhook: Webhook{
 			Secret: "injected-webhook-secret",
 		},
@@ -92,7 +98,7 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 
 	t.Cleanup(func() {
 		os.Unsetenv("PRBOT_GITEA_WEBHOOK_SECRET")
-		os.Unsetenv("PRBOT_GITEA_TOKEN")
+		os.Unsetenv("PRBOT_GITEA_TOKEN_VALUE")
 	})
 }
 
@@ -102,7 +108,9 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 
 	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
+		Token: Token{
+			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
+		},
 		Webhook: Webhook{
 			Secret: "haxxor-sonarqube-secret",
 		},
@@ -114,13 +122,15 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 
 func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 	os.Setenv("PRBOT_SONARQUBE_WEBHOOK_SECRET", "injected-webhook-secret")
-	os.Setenv("PRBOT_SONARQUBE_TOKEN", "injected-token")
+	os.Setenv("PRBOT_SONARQUBE_TOKEN_VALUE", "injected-token")
 	WriteConfigFile(t, defaultConfigInlineSecrets)
 	Load(os.TempDir())
 
 	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: "injected-token",
+		Token: Token{
+			Value: "injected-token",
+		},
 		Webhook: Webhook{
 			Secret: "injected-webhook-secret",
 		},
@@ -131,7 +141,7 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 
 	t.Cleanup(func() {
 		os.Unsetenv("PRBOT_SONARQUBE_WEBHOOK_SECRET")
-		os.Unsetenv("PRBOT_SONARQUBE_TOKEN")
+		os.Unsetenv("PRBOT_SONARQUBE_TOKEN_VALUE")
 	})
 }
 
@@ -145,11 +155,13 @@ func TestLoadStructureWithFileReferenceResolving(t *testing.T) {
 	WriteConfigFile(t, []byte(
 `gitea:
   url: https://example.com/gitea
-  token: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
+  token:
+    value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
   repositories: []
 sonarqube:
   url: https://example.com/sonarqube
-  token: a09eb5785b25bb2cbacf48808a677a0709f02d8e
+  token:
+    value: a09eb5785b25bb2cbacf48808a677a0709f02d8e
   projects: []
 `))
 	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRETFILE", giteaSecretFile)
@@ -157,7 +169,9 @@ sonarqube:
 
 	expectedGitea := GiteaConfig{
 		Url: "https://example.com/gitea",
-		Token: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
+		Token: Token{
+			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
+		},
 		Webhook: Webhook{
 			Secret: "gitea-totally-secret",
 			SecretFile: giteaSecretFile,
@@ -167,7 +181,9 @@ sonarqube:
 
 	expectedSonarQube := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
+		Token: Token{
+			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
+		},
 		Webhook: Webhook{
 			Secret: "sonarqube-totally-secret",
 			SecretFile: sonarqubeSecretFile,
