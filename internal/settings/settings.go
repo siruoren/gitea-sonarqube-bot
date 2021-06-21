@@ -53,7 +53,7 @@ func ApplyConfigDefaults() {
 	viper.SetDefault("gitea.token", "")
 	viper.SetDefault("gitea.webhookSecret.value", "")
 	viper.SetDefault("gitea.webhookSecret.file", "")
-	viper.SetDefault("gitea.repositories", []interface{}{})
+	viper.SetDefault("gitea.repositories", []GiteaRepository{})
 	viper.SetDefault("sonarqube.url", "")
 	viper.SetDefault("sonarqube.token", "")
 	viper.SetDefault("sonarqube.webhookSecret.value", "")

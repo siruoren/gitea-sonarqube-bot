@@ -20,11 +20,12 @@ gitea:
   # will be ignored.
   # A repository specification contains the owner name and the repository name itself. The owner can be the name of a
   # real account or an organization in which the repository is located.
-  repositories:
-    - owner: justusbunsi
-      name: example-repo
-    - owner: my-organization
-      name: example-repo
+  # If empty array given, don't filter requests for repositories and proceed them all.
+  repositories: []
+  #  - owner: justusbunsi
+  #    name: example-repo
+  #  - owner: my-organization
+  #    name: example-repo
 
 
 # SonarQube related configuration. Necessary for requesting data from the API and processing the webhook.
@@ -47,6 +48,7 @@ sonarqube:
   #  file: /path/to/sonarqube/webhook/secret
 
   # List of project keys from inside SonarQube that should be handled. Webhooks containing other projects will be ignored.
-  projects:
-    - project-1
-    - project-2
+  # If empty array given, don't filter requests for repositories and proceed them all.
+  projects: []
+  #  - project-1
+  #  - project-2
