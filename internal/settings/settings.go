@@ -13,22 +13,22 @@ type GiteaRepository struct {
 	Name string
 }
 
-type WebhookSecret struct {
-	Value string
-	File string
+type Webhook struct {
+	Secret string
+	SecretFile string
 }
 
 type GiteaConfig struct {
 	Url string
 	Token string
-	WebhookSecret WebhookSecret `mapstructure:"webhookSecret"`
+	Webhook Webhook `mapstructure:"webhook"`
 	Repositories []GiteaRepository
 }
 
 type SonarQubeConfig struct {
 	Url string
 	Token string
-	WebhookSecret WebhookSecret `mapstructure:"webhookSecret"`
+	Webhook Webhook `mapstructure:"webhook"`
 	Projects []string
 }
 
@@ -51,13 +51,13 @@ func init() {
 func ApplyConfigDefaults() {
 	viper.SetDefault("gitea.url", "")
 	viper.SetDefault("gitea.token", "")
-	viper.SetDefault("gitea.webhookSecret.value", "")
-	viper.SetDefault("gitea.webhookSecret.file", "")
+	viper.SetDefault("gitea.webhook.secret", "")
+	viper.SetDefault("gitea.webhook.secretFile", "")
 	viper.SetDefault("gitea.repositories", []GiteaRepository{})
 	viper.SetDefault("sonarqube.url", "")
 	viper.SetDefault("sonarqube.token", "")
-	viper.SetDefault("sonarqube.webhookSecret.value", "")
-	viper.SetDefault("sonarqube.webhookSecret.file", "")
+	viper.SetDefault("sonarqube.webhook.secret", "")
+	viper.SetDefault("sonarqube.webhook.secretFile", "")
 	viper.SetDefault("sonarqube.projects", []string{})
 }
 
@@ -91,11 +91,11 @@ func Load(configPath string) {
 	Gitea = fullConfig.Gitea
 	SonarQube = fullConfig.SonarQube
 
-	if Gitea.WebhookSecret.File != "" {
-		Gitea.WebhookSecret.Value = ReadSecretFile(Gitea.WebhookSecret.File)
+	if Gitea.Webhook.SecretFile != "" {
+		Gitea.Webhook.Secret = ReadSecretFile(Gitea.Webhook.SecretFile)
 	}
 
-	if SonarQube.WebhookSecret.File != "" {
-		SonarQube.WebhookSecret.Value = ReadSecretFile(SonarQube.WebhookSecret.File)
+	if SonarQube.Webhook.SecretFile != "" {
+		SonarQube.Webhook.Secret = ReadSecretFile(SonarQube.Webhook.SecretFile)
 	}
 }
