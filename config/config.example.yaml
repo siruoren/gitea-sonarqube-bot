@@ -19,18 +19,6 @@ gitea:
   #  # or path to file containing the plain text secret
   #  secretFile: /path/to/gitea/webhook/secret
 
-  # List of repository the used Gitea account has access to and shall be handled by the bot. Other repository webhooks
-  # will be ignored.
-  # A repository specification contains the owner name and the repository name itself. The owner can be the name of a
-  # real account or an organization in which the repository is located.
-  # If empty array given, don't filter requests for repositories and proceed them all.
-  repositories: []
-  #  - owner: justusbunsi
-  #    name: example-repo
-  #  - owner: my-organization
-  #    name: example-repo
-
-
 # SonarQube related configuration. Necessary for requesting data from the API and processing the webhook.
 sonarqube:
   # API endpoint of your SonarQube instance.
@@ -53,8 +41,13 @@ sonarqube:
   #  # or path to file containing the plain text secret
   #  secretFile: /path/to/sonarqube/webhook/secret
 
-  # List of project keys from inside SonarQube that should be handled. Webhooks containing other projects will be ignored.
-  # If empty array given, don't filter requests for repositories and proceed them all.
-  projects: []
-  #  - project-1
-  #  - project-2
+# List of project mappings to take care of. Webhooks for other projects will be ignored.
+# At least one must be configured. Otherwise all webhooks (no matter which source) because the bot cannot map on its own.
+projects:
+  - sonarqube:
+      key: project-1
+    # A repository specification contains the owner name and the repository name itself. The owner can be the name of a
+    # real account or an organization in which the repository is located.
+    gitea:
+      owner: justusbunsi
+      name: example-repo

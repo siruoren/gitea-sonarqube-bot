@@ -9,23 +9,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var defaultConfigInlineSecrets []byte = []byte(
+var defaultConfig []byte = []byte(
 `gitea:
   url: https://example.com/gitea
   token:
     value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
   webhook:
     secret: haxxor-gitea-secret
-  repositories:
-    - owner: some-owner
-      name: a-repository-name
 sonarqube:
   url: https://example.com/sonarqube
   token:
     value: a09eb5785b25bb2cbacf48808a677a0709f02d8e
   webhook:
     secret: haxxor-sonarqube-secret
-  projects: []
+projects:
+  - sonarqube:
+      key: gitea-sonarqube-pr-bot
+    gitea:
+      owner: example-organization
+      name: pr-bot
 `)
 
 func WriteConfigFile(t *testing.T, content []byte) {
@@ -44,13 +46,13 @@ func TestLoadWithMissingFile(t *testing.T) {
 }
 
 func TestLoadWithExistingFile(t *testing.T) {
-	WriteConfigFile(t, defaultConfigInlineSecrets)
+	WriteConfigFile(t, defaultConfig)
 
 	assert.NotPanics(t, func() { Load(os.TempDir()) }, "Unexpected panic while reading existing file")
 }
 
 func TestLoadGiteaStructure(t *testing.T) {
-	WriteConfigFile(t, defaultConfigInlineSecrets)
+	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
 	expected := GiteaConfig{
@@ -61,12 +63,6 @@ func TestLoadGiteaStructure(t *testing.T) {
 		Webhook: Webhook{
 			Secret: "haxxor-gitea-secret",
 		},
-		Repositories: []GiteaRepository{
-			GiteaRepository{
-				Owner: "some-owner",
-				Name: "a-repository-name",
-			},
-		},
 	}
 
 	assert.EqualValues(t, expected, Gitea)
@@ -75,7 +71,7 @@ func TestLoadGiteaStructure(t *testing.T) {
 func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRET", "injected-webhook-secret")
 	os.Setenv("PRBOT_GITEA_TOKEN_VALUE", "injected-token")
-	WriteConfigFile(t, defaultConfigInlineSecrets)
+	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
 	expected := GiteaConfig{
@@ -85,12 +81,6 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 		},
 		Webhook: Webhook{
 			Secret: "injected-webhook-secret",
-		},
-		Repositories: []GiteaRepository{
-			GiteaRepository{
-				Owner: "some-owner",
-				Name: "a-repository-name",
-			},
 		},
 	}
 
@@ -103,7 +93,7 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 }
 
 func TestLoadSonarQubeStructure(t *testing.T) {
-	WriteConfigFile(t, defaultConfigInlineSecrets)
+	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
 	expected := SonarQubeConfig{
@@ -114,7 +104,6 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 		Webhook: Webhook{
 			Secret: "haxxor-sonarqube-secret",
 		},
-		Projects: []string{},
 	}
 
 	assert.EqualValues(t, expected, SonarQube)
@@ -123,7 +112,7 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 	os.Setenv("PRBOT_SONARQUBE_WEBHOOK_SECRET", "injected-webhook-secret")
 	os.Setenv("PRBOT_SONARQUBE_TOKEN_VALUE", "injected-token")
-	WriteConfigFile(t, defaultConfigInlineSecrets)
+	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
 	expected := SonarQubeConfig{
@@ -134,7 +123,6 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 		Webhook: Webhook{
 			Secret: "injected-webhook-secret",
 		},
-		Projects: []string{},
 	}
 
 	assert.EqualValues(t, expected, SonarQube)
@@ -163,12 +151,10 @@ func TestLoadStructureWithFileReferenceResolving(t *testing.T) {
   url: https://example.com/gitea
   token:
     value: fake-gitea-token
-  repositories: []
 sonarqube:
   url: https://example.com/sonarqube
   token:
     value: fake-sonarqube-token
-  projects: []
 `))
 	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRETFILE", giteaWebhookSecretFile)
 	os.Setenv("PRBOT_GITEA_TOKEN_FILE", giteaTokenFile)
@@ -185,7 +171,6 @@ sonarqube:
 			Secret: "gitea-totally-secret",
 			SecretFile: giteaWebhookSecretFile,
 		},
-		Repositories: []GiteaRepository{},
 	}
 
 	expectedSonarQube := SonarQubeConfig{
@@ -198,7 +183,6 @@ sonarqube:
 			Secret: "sonarqube-totally-secret",
 			SecretFile: sonarqubeWebhookSecretFile,
 		},
-		Projects: []string{},
 	}
 
 	Load(os.TempDir())
@@ -215,4 +199,23 @@ sonarqube:
 		os.Unsetenv("PRBOT_SONARQUBE_WEBHOOK_SECRETFILE")
 		os.Unsetenv("PRBOT_SONARQUBE_TOKEN_FILE")
 	})
+}
+
+func TestLoadProjectsStructure(t *testing.T) {
+	WriteConfigFile(t, defaultConfig)
+	Load(os.TempDir())
+
+	expectedProjects := []Project{
+		Project{
+			SonarQube: struct {Key string}{
+				Key: "gitea-sonarqube-pr-bot",
+			},
+			Gitea: GiteaRepository{
+				Owner: "example-organization",
+				Name: "pr-bot",
+			},
+		},
+	}
+
+	assert.EqualValues(t, expectedProjects, Projects)
 }
