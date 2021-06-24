@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/justusbunsi/gitea-sonarqube-pr-bot/internal/settings"
 )
@@ -34,28 +35,30 @@ func HandleWebhook(rw http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Received hook for project '%s'. Processing data.", project)
 
-	var raw []byte
-	var webhook *Webhook
-	var ok bool
-	var err error
-
-	raw, err = ioutil.ReadAll(r.Body)
+	raw, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
+		log.Printf("Error reading request body %s", err.Error())
 		rw.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
 		return
 	}
 
-	if webhook, ok = NewWebhook(raw); !ok {
+	w, ok := NewWebhook(raw)
+	if !ok {
 		rw.WriteHeader(http.StatusUnprocessableEntity)
 		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
 		return
 	}
 
-	log.Printf("%s", webhook)
-
 	// Send response to SonarQube at this point to ensure being within 10 seconds limit of webhook response timeout
 	rw.WriteHeader(http.StatusOK)
 	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
+
+	if strings.ToLower(w.Branch.Type) != "pull_request" {
+		log.Print("Ignore Hook for non-PR")
+		return
+	}
+
+	log.Printf("%s", w)
 }
