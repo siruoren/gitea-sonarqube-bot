@@ -9,11 +9,22 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 ## Table of Contents
 
 - [Gitea SonarQube PR Bot](#gitea-sonarqube-pr-bot)
+  - [TODOs](#todos)
   - [Workflow](#workflow)
   - [Setup](#setup)
   - [Bot configuration](#bot-configuration)
   - [Contributing](#contributing)
   - [License](#license)
+
+## TODOs
+
+- [ ] Maybe drop `PRBOT_CONFIG_PATH` environment variable in favor of `--config path/to/config.yaml` cli attribute
+- [ ] Configure SonarQube PR branch naming pattern for more flexibility (currently focused on Jenkins with [Gitea Plugin](https://github.com/jenkinsci/gitea-plugin))
+- [ ] Configuration live reloading
+- [ ] _Caching_ of outgoing requests in case the target is not available
+- [ ] Parsable logging for monitoring
+- [ ] Official image for containerized hosting
+- [ ] Helm chart for Kubernetes
 
 ## Workflow
 
