@@ -48,33 +48,6 @@ var (
 	Projects []Project
 )
 
-func init() {
-	viper.SetConfigName("config.yaml")
-	viper.SetConfigType("yaml")
-	viper.SetEnvPrefix("prbot")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AllowEmptyEnv(true)
-	viper.AutomaticEnv()
-
-	ApplyConfigDefaults()
-}
-
-func ApplyConfigDefaults() {
-	viper.SetDefault("gitea.url", "")
-	viper.SetDefault("gitea.token.value", "")
-	viper.SetDefault("gitea.token.file", "")
-	viper.SetDefault("gitea.webhook.secret", "")
-	viper.SetDefault("gitea.webhook.secretFile", "")
-
-	viper.SetDefault("sonarqube.url", "")
-	viper.SetDefault("sonarqube.token.value", "")
-	viper.SetDefault("sonarqube.token.file", "")
-	viper.SetDefault("sonarqube.webhook.secret", "")
-	viper.SetDefault("sonarqube.webhook.secretFile", "")
-
-	viper.SetDefault("projects", []Project{})
-}
-
 func ReadSecretFile(file string, defaultValue string) (string) {
 	if file == "" {
 		return defaultValue
@@ -88,10 +61,35 @@ func ReadSecretFile(file string, defaultValue string) (string) {
 	return string(content)
 }
 
-func Load(configPath string) {
-	viper.AddConfigPath(configPath)
+func NewConfigReader() *viper.Viper {
+	v := viper.New()
+	v.SetConfigName("config.yaml")
+	v.SetConfigType("yaml")
+	v.SetEnvPrefix("prbot")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AllowEmptyEnv(true)
+	v.AutomaticEnv()
 
-	err := viper.ReadInConfig()
+	v.SetDefault("gitea.url", "")
+	v.SetDefault("gitea.token.value", "")
+	v.SetDefault("gitea.token.file", "")
+	v.SetDefault("gitea.webhook.secret", "")
+	v.SetDefault("gitea.webhook.secretFile", "")
+	v.SetDefault("sonarqube.url", "")
+	v.SetDefault("sonarqube.token.value", "")
+	v.SetDefault("sonarqube.token.file", "")
+	v.SetDefault("sonarqube.webhook.secret", "")
+	v.SetDefault("sonarqube.webhook.secretFile", "")
+	v.SetDefault("projects", []Project{})
+
+	return v
+}
+
+func Load(configPath string) {
+	r := NewConfigReader()
+	r.AddConfigPath(configPath)
+
+	err := r.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error while reading config file: %w \n", err))
 	}
@@ -102,7 +100,7 @@ func Load(configPath string) {
 		Projects []Project
 	}
 
-	err = viper.Unmarshal(&fullConfig)
+	err = r.Unmarshal(&fullConfig)
 	if err != nil {
 		panic(fmt.Errorf("Unable to load config into struct, %v", err))
 	}
