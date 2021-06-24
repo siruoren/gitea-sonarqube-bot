@@ -155,6 +155,12 @@ sonarqube:
   url: https://example.com/sonarqube
   token:
     value: fake-sonarqube-token
+projects:
+  - sonarqube:
+      key: gitea-sonarqube-pr-bot
+    gitea:
+      owner: example-organization
+      name: pr-bot
 `))
 	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRETFILE", giteaWebhookSecretFile)
 	os.Setenv("PRBOT_GITEA_TOKEN_FILE", giteaTokenFile)
@@ -218,4 +224,25 @@ func TestLoadProjectsStructure(t *testing.T) {
 	}
 
 	assert.EqualValues(t, expectedProjects, Projects)
+}
+
+func TestLoadProjectsStructureWithNoMapping(t *testing.T) {
+	invalidConfig := []byte(
+`gitea:
+  url: https://example.com/gitea
+  token:
+    value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
+  webhook:
+    secret: haxxor-gitea-secret
+sonarqube:
+  url: https://example.com/sonarqube
+  token:
+    value: a09eb5785b25bb2cbacf48808a677a0709f02d8e
+  webhook:
+    secret: haxxor-sonarqube-secret
+projects: []
+`)
+	WriteConfigFile(t, invalidConfig)
+
+	assert.Panics(t, func() { Load(os.TempDir()) }, "No panic for empty project mapping that is required")
 }

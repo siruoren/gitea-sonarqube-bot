@@ -107,6 +107,10 @@ func Load(configPath string) {
 		panic(fmt.Errorf("Unable to load config into struct, %v", err))
 	}
 
+	if len(fullConfig.Projects) == 0 {
+		panic("Invalid configuration. At least one project mapping is necessary.")
+	}
+
 	Gitea = fullConfig.Gitea
 	SonarQube = fullConfig.SonarQube
 	Projects = fullConfig.Projects
