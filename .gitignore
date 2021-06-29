@@ -3,3 +3,5 @@
 /config/
 /vendor/
 /gitea-sonarqube-bot
+/coverage.html
+/*.log

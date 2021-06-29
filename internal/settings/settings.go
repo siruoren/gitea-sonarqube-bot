@@ -2,7 +2,6 @@ package settings
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -13,26 +12,16 @@ type giteaRepository struct {
 	Name string
 }
 
-type token struct {
-	Value string
-	File string
-}
-
-type webhook struct {
-	Secret string
-	SecretFile string
-}
-
 type giteaConfig struct {
 	Url string
-	Token token
-	Webhook webhook
+	Token *token
+	Webhook *webhook
 }
 
 type sonarQubeConfig struct {
 	Url string
-	Token token
-	Webhook webhook
+	Token *token
+	Webhook *webhook
 }
 
 type Project struct {
@@ -42,30 +31,11 @@ type Project struct {
 	Gitea giteaRepository
 }
 
-type fullConfig struct {
-	Gitea giteaConfig
-	SonarQube sonarQubeConfig `mapstructure:"sonarqube"`
-	Projects []Project
-}
-
 var (
 	Gitea giteaConfig
 	SonarQube sonarQubeConfig
 	Projects []Project
 )
-
-func readSecretFile(file string, defaultValue string) (string) {
-	if file == "" {
-		return defaultValue
-	}
-
-	content, err := ioutil.ReadFile(file)
-	if err != nil {
-		panic(fmt.Errorf("Cannot read '%s' or it is no regular file. %w", file, err))
-	}
-
-	return string(content)
-}
 
 func newConfigReader() *viper.Viper {
 	v := viper.New()
@@ -100,23 +70,29 @@ func Load(configPath string) {
 		panic(fmt.Errorf("Fatal error while reading config file: %w \n", err))
 	}
 
-	var configuration fullConfig
+	var projects []Project
 
-	err = r.Unmarshal(&configuration)
+	err = r.UnmarshalKey("projects", &projects)
 	if err != nil {
-		panic(fmt.Errorf("Unable to load config into struct, %v", err))
+		panic(fmt.Errorf("Unable to load project mapping: %s", err.Error()))
 	}
 
-	if len(configuration.Projects) == 0 {
+	if len(projects) == 0 {
 		panic("Invalid configuration. At least one project mapping is necessary.")
 	}
 
-	Gitea = configuration.Gitea
-	SonarQube = configuration.SonarQube
-	Projects = configuration.Projects
+	Projects = projects
 
-	Gitea.Webhook.Secret = readSecretFile(Gitea.Webhook.SecretFile, Gitea.Webhook.Secret)
-	Gitea.Token.Value = readSecretFile(Gitea.Token.File, Gitea.Token.Value)
-	SonarQube.Webhook.Secret = readSecretFile(SonarQube.Webhook.SecretFile, SonarQube.Webhook.Secret)
-	SonarQube.Token.Value = readSecretFile(SonarQube.Token.File, SonarQube.Token.Value)
+	errCallback := func(msg string) {panic(msg)}
+
+	Gitea = giteaConfig{
+		Url: r.GetString("gitea.url"),
+		Token: NewToken(r, "gitea", errCallback),
+		Webhook: NewWebhook(r, "gitea", errCallback),
+	}
+	SonarQube = sonarQubeConfig{
+		Url: r.GetString("sonarqube.url"),
+		Token: NewToken(r, "sonarqube", errCallback),
+		Webhook: NewWebhook(r, "sonarqube", errCallback),
+	}
 }

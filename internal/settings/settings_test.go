@@ -57,10 +57,10 @@ func TestLoadGiteaStructure(t *testing.T) {
 
 	expected := giteaConfig{
 		Url: "https://example.com/gitea",
-		Token: token{
+		Token: &token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
 		},
-		Webhook: webhook{
+		Webhook: &webhook{
 			Secret: "haxxor-gitea-secret",
 		},
 	}
@@ -76,10 +76,10 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 
 	expected := giteaConfig{
 		Url: "https://example.com/gitea",
-		Token: token{
+		Token: &token{
 			Value: "injected-token",
 		},
-		Webhook: webhook{
+		Webhook: &webhook{
 			Secret: "injected-webhook-secret",
 		},
 	}
@@ -98,10 +98,10 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 
 	expected := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: token{
+		Token: &token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
 		},
-		Webhook: webhook{
+		Webhook: &webhook{
 			Secret: "haxxor-sonarqube-secret",
 		},
 	}
@@ -117,10 +117,10 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 
 	expected := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: token{
+		Token: &token{
 			Value: "injected-token",
 		},
-		Webhook: webhook{
+		Webhook: &webhook{
 			Secret: "injected-webhook-secret",
 		},
 	}
@@ -169,25 +169,25 @@ projects:
 
 	expectedGitea := giteaConfig{
 		Url: "https://example.com/gitea",
-		Token: token{
+		Token: &token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
-			File: giteaTokenFile,
+			file: giteaTokenFile,
 		},
-		Webhook: webhook{
+		Webhook: &webhook{
 			Secret: "gitea-totally-secret",
-			SecretFile: giteaWebhookSecretFile,
+			secretFile: giteaWebhookSecretFile,
 		},
 	}
 
 	expectedSonarQube := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: token{
+		Token: &token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
-			File: sonarqubeTokenFile,
+			file: sonarqubeTokenFile,
 		},
-		Webhook: webhook{
+		Webhook: &webhook{
 			Secret: "sonarqube-totally-secret",
-			SecretFile: sonarqubeWebhookSecretFile,
+			secretFile: sonarqubeWebhookSecretFile,
 		},
 	}
 

@@ -18,6 +18,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 
 ## TODOs
 
+- [ ] Validate configuration on startup
 - [ ] Maybe drop `PRBOT_CONFIG_PATH` environment variable in favor of `--config path/to/config.yaml` cli attribute
 - [ ] Configure SonarQube PR branch naming pattern for more flexibility (currently focused on Jenkins with [Gitea Plugin](https://github.com/jenkinsci/gitea-plugin))
 - [ ] Configuration live reloading
