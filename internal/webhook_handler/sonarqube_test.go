@@ -1,16 +1,23 @@
-package sonarqube
+package webhook_handler
 
 import (
 	"bytes"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"gitea-sonarqube-pr-bot/internal/settings"
 	"github.com/stretchr/testify/assert"
+	"gitea-sonarqube-pr-bot/internal/settings"
+	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
 func withValidRequestData(t *testing.T) (*http.Request, *httptest.ResponseRecorder, http.HandlerFunc) {
+	webhookHandler := NewSonarQubeWebhookHandler()
+	webhookHandler.fetchDetails = func(w *webhook.Webhook) {
+		log.Printf("Overridden fetchDetails")
+	}
+
 	jsonBody := []byte(`{ "serverUrl": "https://example.com/sonarqube", "taskId": "AXouyxDpizdp4B1K", "status": "SUCCESS", "analysedAt": "2021-05-21T12:12:07+0000", "revision": "f84442009c09b1adc278b6aa80a3853419f54007", "changedAt": "2021-05-21T12:12:07+0000", "project": { "key": "pr-bot", "name": "PR Bot", "url": "https://example.com/sonarqube/dashboard?id=pr-bot" }, "branch": { "name": "PR-1337", "type": "PULL_REQUEST", "isMain": false, "url": "https://example.com/sonarqube/dashboard?id=pr-bot&pullRequest=PR-1337" }, "qualityGate": { "name": "PR Bot", "status": "OK", "conditions": [ { "metric": "new_reliability_rating", "operator": "GREATER_THAN", "value": "1", "status": "OK", "errorThreshold": "1" }, { "metric": "new_security_rating", "operator": "GREATER_THAN", "value": "1", "status": "OK", "errorThreshold": "1" }, { "metric": "new_maintainability_rating", "operator": "GREATER_THAN", "value": "1", "status": "OK", "errorThreshold": "1" }, { "metric": "new_security_hotspots_reviewed", "operator": "LESS_THAN", "status": "NO_VALUE", "errorThreshold": "100" } ] }, "properties": {} }`)
 	req, err := http.NewRequest("POST", "/hooks/sonarqube", bytes.NewBuffer(jsonBody))
 	if err != nil {
@@ -19,12 +26,12 @@ func withValidRequestData(t *testing.T) (*http.Request, *httptest.ResponseRecord
 	req.Header.Set("X-SonarQube-Project", "pr-bot")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(HandleWebhook)
+	handler := http.HandlerFunc(webhookHandler.Handle)
 
 	return req, rr, handler
 }
 
-func TestHandleWebhookProjectMapped(t *testing.T) {
+func TestHandleSonarQubeWebhookProjectMapped(t *testing.T) {
 	settings.Projects = []settings.Project{
 		settings.Project{
 			SonarQube: struct{Key string}{
@@ -39,7 +46,7 @@ func TestHandleWebhookProjectMapped(t *testing.T) {
 	assert.Equal(t, `{"message": "Processing data. See bot logs for details."}`, rr.Body.String())
 }
 
-func TestHandleWebhookProjectNotMapped(t *testing.T) {
+func TestHandleSonarQubeWebhookProjectNotMapped(t *testing.T) {
 	settings.Projects = []settings.Project{
 		settings.Project{
 			SonarQube: struct{Key string}{
@@ -54,7 +61,7 @@ func TestHandleWebhookProjectNotMapped(t *testing.T) {
 	assert.Equal(t, `{"message": "Project 'pr-bot' not in configured list. Request ignored."}`, rr.Body.String())
 }
 
-func TestHandleWebhookInvalidJSONBody(t *testing.T) {
+func TestHandleSonarQubeWebhookInvalidJSONBody(t *testing.T) {
 	settings.Projects = []settings.Project{
 		settings.Project{
 			SonarQube: struct{Key string}{
@@ -71,7 +78,7 @@ func TestHandleWebhookInvalidJSONBody(t *testing.T) {
 	req.Header.Set("X-SonarQube-Project", "pr-bot")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(HandleWebhook)
+	handler := http.HandlerFunc(NewSonarQubeWebhookHandler().Handle)
 	handler.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)

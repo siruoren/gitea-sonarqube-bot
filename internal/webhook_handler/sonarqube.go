@@ -1,4 +1,4 @@
-package sonarqube
+package webhook_handler
 
 import (
 	"fmt"
@@ -9,9 +9,16 @@ import (
 	"strings"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
+	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
-func inProjectsMapping(p []settings.Project, n string) bool {
+type fetchDetailsType func(w *webhook.Webhook)
+
+type SonarQubeWebhookHandler struct {
+	fetchDetails fetchDetailsType
+}
+
+func (_ *SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) bool {
 	for _, proj := range p {
 		if proj.SonarQube.Key == n {
 			return true
@@ -21,11 +28,11 @@ func inProjectsMapping(p []settings.Project, n string) bool {
 	return false
 }
 
-func HandleWebhook(rw http.ResponseWriter, r *http.Request) {
+func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
 	project := r.Header.Get("X-SonarQube-Project")
-	if !inProjectsMapping(settings.Projects, project) {
+	if !h.inProjectsMapping(settings.Projects, project) {
 		log.Printf("Received hook for project '%s' which is not configured. Request ignored.", project)
 
 		rw.WriteHeader(http.StatusOK)
@@ -44,7 +51,7 @@ func HandleWebhook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w, ok := NewWebhook(raw)
+	w, ok := webhook.New(raw)
 	if !ok {
 		rw.WriteHeader(http.StatusUnprocessableEntity)
 		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
@@ -60,5 +67,16 @@ func HandleWebhook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("%s", w)
+	h.fetchDetails(w)
+}
+
+
+func fetchDetails(w *webhook.Webhook) {
+	log.Printf("Hello from the original one: %s", w)
+}
+
+func NewSonarQubeWebhookHandler() *SonarQubeWebhookHandler {
+	return &SonarQubeWebhookHandler{
+		fetchDetails: fetchDetails,
+	}
 }
