@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/justusbunsi/gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-pr-bot/internal/settings"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -8,47 +8,53 @@ import (
 	"github.com/spf13/viper"
 )
 
-type GiteaRepository struct {
+type giteaRepository struct {
 	Owner string
 	Name string
 }
 
-type Token struct {
+type token struct {
 	Value string
 	File string
 }
 
-type Webhook struct {
+type webhook struct {
 	Secret string
 	SecretFile string
 }
 
-type GiteaConfig struct {
+type giteaConfig struct {
 	Url string
-	Token Token
-	Webhook Webhook
+	Token token
+	Webhook webhook
 }
 
-type SonarQubeConfig struct {
+type sonarQubeConfig struct {
 	Url string
-	Token Token
-	Webhook Webhook
+	Token token
+	Webhook webhook
 }
 
 type Project struct {
 	SonarQube struct {
 		Key string
 	} `mapstructure:"sonarqube"`
-	Gitea GiteaRepository
+	Gitea giteaRepository
+}
+
+type fullConfig struct {
+	Gitea giteaConfig
+	SonarQube sonarQubeConfig `mapstructure:"sonarqube"`
+	Projects []Project
 }
 
 var (
-	Gitea GiteaConfig
-	SonarQube SonarQubeConfig
+	Gitea giteaConfig
+	SonarQube sonarQubeConfig
 	Projects []Project
 )
 
-func ReadSecretFile(file string, defaultValue string) (string) {
+func readSecretFile(file string, defaultValue string) (string) {
 	if file == "" {
 		return defaultValue
 	}
@@ -61,7 +67,7 @@ func ReadSecretFile(file string, defaultValue string) (string) {
 	return string(content)
 }
 
-func NewConfigReader() *viper.Viper {
+func newConfigReader() *viper.Viper {
 	v := viper.New()
 	v.SetConfigName("config.yaml")
 	v.SetConfigType("yaml")
@@ -86,7 +92,7 @@ func NewConfigReader() *viper.Viper {
 }
 
 func Load(configPath string) {
-	r := NewConfigReader()
+	r := newConfigReader()
 	r.AddConfigPath(configPath)
 
 	err := r.ReadInConfig()
@@ -94,27 +100,23 @@ func Load(configPath string) {
 		panic(fmt.Errorf("Fatal error while reading config file: %w \n", err))
 	}
 
-	var fullConfig struct {
-		Gitea GiteaConfig
-		SonarQube SonarQubeConfig `mapstructure:"sonarqube"`
-		Projects []Project
-	}
+	var configuration fullConfig
 
-	err = r.Unmarshal(&fullConfig)
+	err = r.Unmarshal(&configuration)
 	if err != nil {
 		panic(fmt.Errorf("Unable to load config into struct, %v", err))
 	}
 
-	if len(fullConfig.Projects) == 0 {
+	if len(configuration.Projects) == 0 {
 		panic("Invalid configuration. At least one project mapping is necessary.")
 	}
 
-	Gitea = fullConfig.Gitea
-	SonarQube = fullConfig.SonarQube
-	Projects = fullConfig.Projects
+	Gitea = configuration.Gitea
+	SonarQube = configuration.SonarQube
+	Projects = configuration.Projects
 
-	Gitea.Webhook.Secret = ReadSecretFile(Gitea.Webhook.SecretFile, Gitea.Webhook.Secret)
-	Gitea.Token.Value = ReadSecretFile(Gitea.Token.File, Gitea.Token.Value)
-	SonarQube.Webhook.Secret = ReadSecretFile(SonarQube.Webhook.SecretFile, SonarQube.Webhook.Secret)
-	SonarQube.Token.Value = ReadSecretFile(SonarQube.Token.File, SonarQube.Token.Value)
+	Gitea.Webhook.Secret = readSecretFile(Gitea.Webhook.SecretFile, Gitea.Webhook.Secret)
+	Gitea.Token.Value = readSecretFile(Gitea.Token.File, Gitea.Token.Value)
+	SonarQube.Webhook.Secret = readSecretFile(SonarQube.Webhook.SecretFile, SonarQube.Webhook.Secret)
+	SonarQube.Token.Value = readSecretFile(SonarQube.Token.File, SonarQube.Token.Value)
 }

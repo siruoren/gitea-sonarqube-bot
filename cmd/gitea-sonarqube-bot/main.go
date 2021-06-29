@@ -4,10 +4,10 @@ import (
 	"os"
 	"path"
 
-	"github.com/justusbunsi/gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-pr-bot/internal/settings"
 )
 
-func GetConfigLocation() string {
+func getConfigLocation() string {
 	configPath := path.Join("config")
 	if customConfigPath, ok := os.LookupEnv("PRBOT_CONFIG_PATH"); ok {
 		configPath = customConfigPath
@@ -17,5 +17,5 @@ func GetConfigLocation() string {
 }
 
 func main() {
-	settings.Load(GetConfigLocation())
+	settings.Load(getConfigLocation())
 }

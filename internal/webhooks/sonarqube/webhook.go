@@ -10,22 +10,22 @@ import (
 type Webhook struct {
 	ServerUrl string `mapstructure:"serverUrl"`
 	Revision string
-	Branch Branch
-	QualityGate QualityGate `mapstructure:"qualityGate"`
+	Branch branch
+	QualityGate qualityGate `mapstructure:"qualityGate"`
 }
 
-type Branch struct {
+type branch struct {
 	Name string
 	Type string
 	Url string
 }
 
-type QualityGate struct {
+type qualityGate struct {
 	Status string
-	Conditions []QualityGateCondition
+	Conditions []condition
 }
 
-type QualityGateCondition struct {
+type condition struct {
 	Metric string
 	Status string
 }

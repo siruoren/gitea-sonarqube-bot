@@ -1,4 +1,4 @@
-module github.com/justusbunsi/gitea-sonarqube-pr-bot
+module gitea-sonarqube-pr-bot
 
 go 1.16
 

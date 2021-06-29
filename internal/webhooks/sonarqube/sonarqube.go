@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/justusbunsi/gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-pr-bot/internal/settings"
 )
 
 func inProjectsMapping(p []settings.Project, n string) bool {
