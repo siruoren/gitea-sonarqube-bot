@@ -12,10 +12,8 @@ import (
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
-type fetchDetailsType func(w *webhook.Webhook)
-
 type SonarQubeWebhookHandler struct {
-	fetchDetails fetchDetailsType
+	fetchDetails func(w *webhook.Webhook)
 }
 
 func (_ *SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) bool {
