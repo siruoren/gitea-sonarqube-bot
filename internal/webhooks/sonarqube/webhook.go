@@ -2,7 +2,10 @@ package sonarqube
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"regexp"
+	"strconv"
 
 	"github.com/spf13/viper"
 )
@@ -22,6 +25,16 @@ type Webhook struct {
 			Status string
 		}
 	} `mapstructure:"qualityGate"`
+}
+
+func (w *Webhook) GetPRIndex() (int, error) {
+	re := regexp.MustCompile(`^PR-(\d+)$`)
+	res := re.FindSubmatch([]byte(w.Branch.Name))
+	if len(res) != 2 {
+		return 0, fmt.Errorf("Branch name '%s' does not match regex '%s'. Extracting PR index not possible.", w.Branch.Name, re.String())
+	}
+
+	return strconv.Atoi(fmt.Sprintf("%s", res[1]))
 }
 
 func New(raw []byte) (*Webhook, bool) {

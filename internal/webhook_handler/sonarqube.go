@@ -66,6 +66,9 @@ func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request
 	}
 
 	h.fetchDetails(w)
+	if idx, err1 := w.GetPRIndex(); err1 == nil {
+		log.Printf("New details for Gitea PR %d", idx)
+	}
 }
 
 
