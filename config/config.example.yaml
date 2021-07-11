@@ -1,7 +1,7 @@
 # Gitea related configuration. Necessary for adding/updating comments on repository pull requests
 gitea:
-  # API endpoint of your Gitea instance. Must be the API base path as shown in Swagger UI.
-  url: https://try.gitea.io/api/v1
+  # Endpoint of your Gitea instance. Must be expandable by '/api/v1' to form the API base path as shown in Swagger UI.
+  url: https://try.gitea.io
 
   # Created access token for the user that shall be used as bot account.
   # User needs "Read project" permissions with access to "Pull Requests"
@@ -21,8 +21,8 @@ gitea:
 
 # SonarQube related configuration. Necessary for requesting data from the API and processing the webhook.
 sonarqube:
-  # API endpoint of your SonarQube instance.
-  url: https://sonarcloud.io/api
+  # Endpoint of your SonarQube instance. Must be expandable by '/api' to form the API base path.
+  url: https://sonarcloud.io
 
   # Created access token for the user that shall be used as bot account.
   # User needs "Browse on project" permissions
