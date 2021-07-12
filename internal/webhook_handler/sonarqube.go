@@ -9,17 +9,42 @@ import (
 	"strings"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
-	sdk "gitea-sonarqube-pr-bot/internal/gitea_sdk"
+	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
+	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
 type SonarQubeWebhookHandler struct {
 	fetchDetails func(w *webhook.Webhook)
-	giteaSdk sdk.GiteaSdkInterface
+	giteaSdk giteaSdk.GiteaSdkInterface
+	sqSdk sqSdk.SonarQubeSdkInterface
 }
 
 func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) string {
-	return fmt.Sprintf("Hello from pr-bot. SonarQube data for '%s' has been processed.", w.Project.Key)
+	a, _ := h.sqSdk.GetMeasures(w.Project.Key, w.Branch.Name)
+
+	log.Println(a)
+
+	status := ":white_check_mark:"
+	if w.QualityGate.Status != "OK" {
+		status = ":x:"
+	}
+
+	measures := `| Metric | Current |
+| -------- | -------- |
+| Bugs | 123 |
+| Code Smells | 1 |
+| Vulnerabilities | 1 |
+`
+
+	msg := `**Quality Gate**: %s
+
+**Measures**
+
+%s
+
+See [SonarQube](https://example.com/sonarqube/dashboard?id=pr-bot&pullRequest=PR-1) for details.`
+	return fmt.Sprintf(msg, status, measures)
 }
 
 func (_ *SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) (bool, int) {
@@ -86,6 +111,10 @@ func fetchDetails(w *webhook.Webhook) {
 	log.Printf("This method will load additional data from SonarQube based on PR %d", w.PRIndex)
 }
 
-func NewSonarQubeWebhookHandler(giteaSdk sdk.GiteaSdkInterface) *SonarQubeWebhookHandler {
-	return &SonarQubeWebhookHandler{fetchDetails, giteaSdk}
+func NewSonarQubeWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) *SonarQubeWebhookHandler {
+	return &SonarQubeWebhookHandler{
+		fetchDetails: fetchDetails,
+		giteaSdk: g,
+		sqSdk: sq,
+	}
 }

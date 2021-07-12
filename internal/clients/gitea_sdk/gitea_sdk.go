@@ -2,7 +2,6 @@ package gitea_sdk
 
 import (
 	"fmt"
-	"log"
 	"gitea-sonarqube-pr-bot/internal/settings"
 	"code.gitea.io/sdk/gitea"
 )
@@ -20,7 +19,6 @@ func (sdk *GiteaSdk) PostComment(repo settings.GiteaRepository, idx int, msg str
 		Body: msg,
 	}
 
-	log.Printf("Owner: %s | Repo: %s | Index: %d | Options: %s", repo.Owner, repo.Name, idx, opt)
 	_, _, err := sdk.client.CreateIssueComment(repo.Owner, repo.Name, int64(idx), opt)
 
 	return err
