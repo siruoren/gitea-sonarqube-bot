@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	sdk "gitea-sonarqube-pr-bot/internal/gitea_sdk"
 	"github.com/gorilla/mux"
 	"github.com/urfave/cli/v2"
 )
@@ -22,7 +23,7 @@ func Serve(c *cli.Context) error {
 	flag.Parse()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/hooks/sonarqube", NewSonarQubeWebhookHandler().Handle).Methods("POST").Headers("X-SonarQube-Project", "")
+	r.HandleFunc("/hooks/sonarqube", NewSonarQubeWebhookHandler(sdk.New()).Handle).Methods("POST").Headers("X-SonarQube-Project", "")
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:8080",

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type giteaRepository struct {
+type GiteaRepository struct {
 	Owner string
 	Name string
 }
@@ -28,7 +28,7 @@ type Project struct {
 	SonarQube struct {
 		Key string
 	} `mapstructure:"sonarqube"`
-	Gitea giteaRepository
+	Gitea GiteaRepository
 }
 
 var (

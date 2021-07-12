@@ -20,6 +20,14 @@ func (h *HandlerPartialMock) fetchDetails(w *webhook.Webhook) {
 	h.Called(w)
 }
 
+type GiteaSdkMock struct {
+	mock.Mock
+}
+
+func (h *GiteaSdkMock) PostComment(_ settings.GiteaRepository, _ int, _ string) error {
+	return nil
+}
+
 func defaultMockPreparation(h *HandlerPartialMock) {
 	h.On("fetchDetails", mock.Anything).Return(nil)
 }
@@ -28,7 +36,7 @@ func withValidRequestData(t *testing.T, mockPreparation func(*HandlerPartialMock
 	partialMock := new(HandlerPartialMock)
 	mockPreparation(partialMock)
 
-	webhookHandler := NewSonarQubeWebhookHandler()
+	webhookHandler := NewSonarQubeWebhookHandler(new(GiteaSdkMock))
 	webhookHandler.fetchDetails = partialMock.fetchDetails
 
 	req, err := http.NewRequest("POST", "/hooks/sonarqube", bytes.NewBuffer(jsonBody))

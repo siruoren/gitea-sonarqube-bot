@@ -9,36 +9,55 @@ import (
 	"strings"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
+	sdk "gitea-sonarqube-pr-bot/internal/gitea_sdk"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
 type SonarQubeWebhookHandler struct {
 	fetchDetails func(w *webhook.Webhook)
+	giteaSdk sdk.GiteaSdkInterface
 }
 
-func (_ *SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) bool {
-	for _, proj := range p {
+func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) string {
+	return fmt.Sprintf("Hello from pr-bot. SonarQube data for '%s' has been processed.", w.Project.Key)
+}
+
+func (_ *SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) (bool, int) {
+	for idx, proj := range p {
 		if proj.SonarQube.Key == n {
-			return true
+			return true, idx
 		}
 	}
 
-	return false
+	return false, 0
+}
+
+func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.GiteaRepository) {
+	if strings.ToLower(w.Branch.Type) != "pull_request" {
+		log.Println("Ignore Hook for non-PR")
+		return
+	}
+
+	h.fetchDetails(w)
+
+	comment := h.composeGiteaComment(w)
+	h.giteaSdk.PostComment(repo, w.PRIndex, comment)
 }
 
 func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
-	project := r.Header.Get("X-SonarQube-Project")
-	if !h.inProjectsMapping(settings.Projects, project) {
-		log.Printf("Received hook for project '%s' which is not configured. Request ignored.", project)
+	projectName := r.Header.Get("X-SonarQube-Project")
+	found, pIdx := h.inProjectsMapping(settings.Projects, projectName)
+	if !found {
+		log.Printf("Received hook for project '%s' which is not configured. Request ignored.", projectName)
 
 		rw.WriteHeader(http.StatusOK)
-		io.WriteString(rw, fmt.Sprintf(`{"message": "Project '%s' not in configured list. Request ignored."}`, project))
+		io.WriteString(rw, fmt.Sprintf(`{"message": "Project '%s' not in configured list. Request ignored."}`, projectName))
 		return
 	}
 
-	log.Printf("Received hook for project '%s'. Processing data.", project)
+	log.Printf("Received hook for project '%s'. Processing data.", projectName)
 
 	raw, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -60,24 +79,13 @@ func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request
 	rw.WriteHeader(http.StatusOK)
 	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
 
-	if strings.ToLower(w.Branch.Type) != "pull_request" {
-		log.Print("Ignore Hook for non-PR")
-		return
-	}
-
-	h.fetchDetails(w)
-	if idx, err1 := w.GetPRIndex(); err1 == nil {
-		log.Printf("New details for Gitea PR %d", idx)
-	}
+	h.processData(w, settings.Projects[pIdx].Gitea)
 }
-
 
 func fetchDetails(w *webhook.Webhook) {
-	log.Printf("Hello from the original one: %s", w)
+	log.Printf("This method will load additional data from SonarQube based on PR %d", w.PRIndex)
 }
 
-func NewSonarQubeWebhookHandler() *SonarQubeWebhookHandler {
-	return &SonarQubeWebhookHandler{
-		fetchDetails: fetchDetails,
-	}
+func NewSonarQubeWebhookHandler(giteaSdk sdk.GiteaSdkInterface) *SonarQubeWebhookHandler {
+	return &SonarQubeWebhookHandler{fetchDetails, giteaSdk}
 }

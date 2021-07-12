@@ -216,7 +216,7 @@ func TestLoadProjectsStructure(t *testing.T) {
 			SonarQube: struct {Key string}{
 				Key: "gitea-sonarqube-pr-bot",
 			},
-			Gitea: giteaRepository{
+			Gitea: GiteaRepository{
 				Owner: "example-organization",
 				Name: "pr-bot",
 			},
