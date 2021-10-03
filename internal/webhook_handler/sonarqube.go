@@ -2,22 +2,22 @@ package webhook_handler
 
 import (
 	"fmt"
-	"log"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
-	"gitea-sonarqube-pr-bot/internal/settings"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
+	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
 type SonarQubeWebhookHandler struct {
 	fetchDetails func(w *webhook.Webhook)
-	giteaSdk giteaSdk.GiteaSdkInterface
-	sqSdk sqSdk.SonarQubeSdkInterface
+	giteaSdk     giteaSdk.GiteaSdkInterface
+	sqSdk        sqSdk.SonarQubeSdkInterface
 }
 
 func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) string {
@@ -114,7 +114,7 @@ func fetchDetails(w *webhook.Webhook) {
 func NewSonarQubeWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) *SonarQubeWebhookHandler {
 	return &SonarQubeWebhookHandler{
 		fetchDetails: fetchDetails,
-		giteaSdk: g,
-		sqSdk: sq,
+		giteaSdk:     g,
+		sqSdk:        sq,
 	}
 }

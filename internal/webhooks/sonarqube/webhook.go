@@ -12,19 +12,19 @@ import (
 
 type Webhook struct {
 	ServerUrl string `mapstructure:"serverUrl"`
-	Revision string
-	Project struct {
-		Key string
+	Revision  string
+	Project   struct {
+		Key  string
 		Name string
-		Url string
+		Url  string
 	}
 	Branch struct {
 		Name string
 		Type string
-		Url string
-  }
+		Url  string
+	}
 	QualityGate struct {
-		Status string
+		Status     string
 		Conditions []struct {
 			Metric string
 			Status string
@@ -42,7 +42,7 @@ func New(raw []byte) (*Webhook, bool) {
 
 	err := v.Unmarshal(&w)
 	if err != nil {
-	  log.Printf("Error parsing SonarQube webhook: %s", err.Error())
+		log.Printf("Error parsing SonarQube webhook: %s", err.Error())
 		return w, false
 	}
 

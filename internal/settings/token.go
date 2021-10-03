@@ -9,7 +9,7 @@ import (
 
 type token struct {
 	Value string
-	file string
+	file  string
 }
 
 func (t *token) lookupSecret(errCallback func(string)) {
@@ -29,7 +29,7 @@ func (t *token) lookupSecret(errCallback func(string)) {
 func NewToken(v *viper.Viper, confContainer string, errCallback func(string)) *token {
 	t := &token{
 		Value: v.GetString(fmt.Sprintf("%s.token.value", confContainer)),
-		file: v.GetString(fmt.Sprintf("%s.token.file", confContainer)),
+		file:  v.GetString(fmt.Sprintf("%s.token.file", confContainer)),
 	}
 
 	t.lookupSecret(errCallback)

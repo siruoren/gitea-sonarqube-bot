@@ -1,8 +1,8 @@
 package sonarqube
 
 import (
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 )

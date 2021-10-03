@@ -1,11 +1,11 @@
 package sonarqube_sdk
 
 import (
-	"net/http"
-	"fmt"
-	"log"
 	"encoding/base64"
+	"fmt"
 	"io"
+	"log"
+	"net/http"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
 )
@@ -15,9 +15,9 @@ type SonarQubeSdkInterface interface {
 }
 
 type SonarQubeSdk struct {
-	client *http.Client
+	client  *http.Client
 	baseUrl string
-	token string
+	token   string
 }
 
 func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (string, error) {
@@ -43,8 +43,8 @@ func (sdk *SonarQubeSdk) basicAuth() string {
 
 func New() *SonarQubeSdk {
 	return &SonarQubeSdk{
-		client: &http.Client{},
+		client:  &http.Client{},
 		baseUrl: settings.SonarQube.Url,
-		token: settings.SonarQube.Token.Value,
+		token:   settings.SonarQube.Token.Value,
 	}
 }

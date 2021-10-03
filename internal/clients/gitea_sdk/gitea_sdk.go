@@ -3,6 +3,7 @@ package gitea_sdk
 import (
 	"fmt"
 	"gitea-sonarqube-pr-bot/internal/settings"
+
 	"code.gitea.io/sdk/gitea"
 )
 

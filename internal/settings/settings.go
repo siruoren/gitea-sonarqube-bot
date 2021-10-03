@@ -9,18 +9,18 @@ import (
 
 type GiteaRepository struct {
 	Owner string
-	Name string
+	Name  string
 }
 
 type giteaConfig struct {
-	Url string
-	Token *token
+	Url     string
+	Token   *token
 	Webhook *webhook
 }
 
 type sonarQubeConfig struct {
-	Url string
-	Token *token
+	Url     string
+	Token   *token
 	Webhook *webhook
 }
 
@@ -32,9 +32,9 @@ type Project struct {
 }
 
 var (
-	Gitea giteaConfig
+	Gitea     giteaConfig
 	SonarQube sonarQubeConfig
-	Projects []Project
+	Projects  []Project
 )
 
 func newConfigReader() *viper.Viper {
@@ -83,16 +83,16 @@ func Load(configPath string) {
 
 	Projects = projects
 
-	errCallback := func(msg string) {panic(msg)}
+	errCallback := func(msg string) { panic(msg) }
 
 	Gitea = giteaConfig{
-		Url: r.GetString("gitea.url"),
-		Token: NewToken(r, "gitea", errCallback),
+		Url:     r.GetString("gitea.url"),
+		Token:   NewToken(r, "gitea", errCallback),
 		Webhook: NewWebhook(r, "gitea", errCallback),
 	}
 	SonarQube = sonarQubeConfig{
-		Url: r.GetString("sonarqube.url"),
-		Token: NewToken(r, "sonarqube", errCallback),
+		Url:     r.GetString("sonarqube.url"),
+		Token:   NewToken(r, "sonarqube", errCallback),
 		Webhook: NewWebhook(r, "sonarqube", errCallback),
 	}
 }

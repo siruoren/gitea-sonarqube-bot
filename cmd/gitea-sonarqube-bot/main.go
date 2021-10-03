@@ -23,10 +23,10 @@ func main() {
 	settings.Load(getConfigLocation())
 
 	app := &cli.App{
-		Name: "gitea-sonarqube-pr-bot",
-		Usage: "Improve your experience with SonarQube and Gitea",
+		Name:        "gitea-sonarqube-pr-bot",
+		Usage:       "Improve your experience with SonarQube and Gitea",
 		Description: `By default, gitea-sonarqube-pr-bot will start running the webserver if no arguments are passed.`,
-		Action: handler.Serve,
+		Action:      handler.Serve,
 	}
 
 	err := app.Run(os.Args)

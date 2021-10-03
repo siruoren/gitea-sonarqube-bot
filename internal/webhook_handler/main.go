@@ -20,7 +20,7 @@ func Serve(c *cli.Context) error {
 	fmt.Println("Hi! I'm the Gitea-SonarQube-PR bot. At your service.")
 
 	var wait time.Duration
-	flag.DurationVar(&wait, "graceful-timeout", time.Second * 15, "the duration for which the server gracefully wait for existing connections to finish")
+	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish")
 	flag.Parse()
 
 	r := mux.NewRouter()
@@ -30,9 +30,9 @@ func Serve(c *cli.Context) error {
 		Addr: "0.0.0.0:8080",
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
-		ReadTimeout: time.Second * 15,
-		IdleTimeout: time.Second * 60,
-		Handler: r,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r,
 	}
 
 	go func() {

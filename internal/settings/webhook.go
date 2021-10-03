@@ -8,7 +8,7 @@ import (
 )
 
 type webhook struct {
-	Secret string
+	Secret     string
 	secretFile string
 }
 
@@ -28,7 +28,7 @@ func (w *webhook) lookupSecret(errCallback func(string)) {
 
 func NewWebhook(v *viper.Viper, confContainer string, errCallback func(string)) *webhook {
 	w := &webhook{
-		Secret: v.GetString(fmt.Sprintf("%s.webhook.secret", confContainer)),
+		Secret:     v.GetString(fmt.Sprintf("%s.webhook.secret", confContainer)),
 		secretFile: v.GetString(fmt.Sprintf("%s.webhook.secretFile", confContainer)),
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 var defaultConfig []byte = []byte(
-`gitea:
+	`gitea:
   url: https://example.com/gitea
   token:
     value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
@@ -38,7 +38,7 @@ func WriteConfigFile(t *testing.T, content []byte) {
 		os.Remove(config)
 	})
 
-	_ = ioutil.WriteFile(config, content,0444)
+	_ = ioutil.WriteFile(config, content, 0444)
 }
 
 func TestLoadWithMissingFile(t *testing.T) {
@@ -135,19 +135,19 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 
 func TestLoadStructureWithFileReferenceResolving(t *testing.T) {
 	giteaWebhookSecretFile := path.Join(os.TempDir(), "webhook-secret-gitea")
-	_ = ioutil.WriteFile(giteaWebhookSecretFile, []byte(`gitea-totally-secret`),0444)
+	_ = ioutil.WriteFile(giteaWebhookSecretFile, []byte(`gitea-totally-secret`), 0444)
 
 	giteaTokenFile := path.Join(os.TempDir(), "token-secret-gitea")
-	_ = ioutil.WriteFile(giteaTokenFile, []byte(`d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565`),0444)
+	_ = ioutil.WriteFile(giteaTokenFile, []byte(`d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565`), 0444)
 
 	sonarqubeWebhookSecretFile := path.Join(os.TempDir(), "webhook-secret-sonarqube")
-	_ = ioutil.WriteFile(sonarqubeWebhookSecretFile, []byte(`sonarqube-totally-secret`),0444)
+	_ = ioutil.WriteFile(sonarqubeWebhookSecretFile, []byte(`sonarqube-totally-secret`), 0444)
 
 	sonarqubeTokenFile := path.Join(os.TempDir(), "token-secret-sonarqube")
-	_ = ioutil.WriteFile(sonarqubeTokenFile, []byte(`a09eb5785b25bb2cbacf48808a677a0709f02d8e`),0444)
+	_ = ioutil.WriteFile(sonarqubeTokenFile, []byte(`a09eb5785b25bb2cbacf48808a677a0709f02d8e`), 0444)
 
 	WriteConfigFile(t, []byte(
-`gitea:
+		`gitea:
   url: https://example.com/gitea
   token:
     value: fake-gitea-token
@@ -171,10 +171,10 @@ projects:
 		Url: "https://example.com/gitea",
 		Token: &token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
-			file: giteaTokenFile,
+			file:  giteaTokenFile,
 		},
 		Webhook: &webhook{
-			Secret: "gitea-totally-secret",
+			Secret:     "gitea-totally-secret",
 			secretFile: giteaWebhookSecretFile,
 		},
 	}
@@ -183,10 +183,10 @@ projects:
 		Url: "https://example.com/sonarqube",
 		Token: &token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
-			file: sonarqubeTokenFile,
+			file:  sonarqubeTokenFile,
 		},
 		Webhook: &webhook{
-			Secret: "sonarqube-totally-secret",
+			Secret:     "sonarqube-totally-secret",
 			secretFile: sonarqubeWebhookSecretFile,
 		},
 	}
@@ -213,12 +213,12 @@ func TestLoadProjectsStructure(t *testing.T) {
 
 	expectedProjects := []Project{
 		Project{
-			SonarQube: struct {Key string}{
+			SonarQube: struct{ Key string }{
 				Key: "gitea-sonarqube-pr-bot",
 			},
 			Gitea: GiteaRepository{
 				Owner: "example-organization",
-				Name: "pr-bot",
+				Name:  "pr-bot",
 			},
 		},
 	}
@@ -228,7 +228,7 @@ func TestLoadProjectsStructure(t *testing.T) {
 
 func TestLoadProjectsStructureWithNoMapping(t *testing.T) {
 	invalidConfig := []byte(
-`gitea:
+		`gitea:
   url: https://example.com/gitea
   token:
     value: d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565
