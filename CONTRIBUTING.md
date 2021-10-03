@@ -3,9 +3,10 @@
 ## Table of Contents
 
 - [Contribution Guidelines](#contribution-guidelines)
-    - [Setup development environment](#setup-development-environment)
-    - [Testing](#testing)
-    - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
+  - [Table of Contents](#table-of-contents)
+  - [Setup development environment](#setup-development-environment)
+  - [Testing](#testing)
+  - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
 
 ## Setup development environment
 
@@ -26,7 +27,11 @@ go build ./cmd/gitea-sonarqube-bot
 ## Testing
 
 ```bash
+# generic test execution
 go test ./...
+
+# or with coverage report
+go test -coverprofile cover.out ./...
 ```
 
 ## Developer Certificate of Origin (DCO)

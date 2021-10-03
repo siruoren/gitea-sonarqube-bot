@@ -5,3 +5,4 @@
 /gitea-sonarqube-bot
 /coverage.html
 /*.log
+/cover.out
