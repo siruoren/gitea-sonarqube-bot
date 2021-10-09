@@ -21,7 +21,7 @@ type SonarQubeSdk struct {
 }
 
 func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (*MeasuresResponse, error) {
-	url := fmt.Sprintf("%s/api/measures/component?additionalFields=metrics&metricKeys=bugs,vulnerabilities,new_security_hotspots,violations&component=%s&pullRequest=%s", sdk.baseUrl, project, branch)
+	url := fmt.Sprintf("%s/api/measures/component?additionalFields=metrics&metricKeys=bugs,vulnerabilities,new_security_hotspots,code_smells&component=%s&pullRequest=%s", sdk.baseUrl, project, branch)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("cannot initialize Request: %w", err)
