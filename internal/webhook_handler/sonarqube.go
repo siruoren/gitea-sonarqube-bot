@@ -54,6 +54,11 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 
 	h.fetchDetails(w)
 
+	err := h.giteaSdk.UpdateStatus(repo, w)
+	if err != nil {
+		log.Printf("Error updating status: %s", err.Error())
+	}
+
 	comment, err := h.composeGiteaComment(w)
 	if err != nil {
 		log.Printf("Error composing Gitea comment: %s", err.Error())
