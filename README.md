@@ -6,8 +6,6 @@ this [won't be added in near future](https://github.com/SonarSource/sonarqube/pu
 _Gitea SonarQube PR Bot_ aims to fill the gap between working on pull requests and being notified on quality changes. 
 Luckily, both endpoints have a proper REST API to communicate with each others.
 
-## Table of Contents
-
 - [Gitea SonarQube PR Bot](#gitea-sonarqube-pr-bot)
   - [TODOs](#todos)
   - [Workflow](#workflow)
@@ -19,6 +17,8 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 ## TODOs
 
 - [ ] Validate configuration on startup
+- [ ] Verify webhook secrets
+- [ ] Only post status-check (Opt-in/out)
 - [ ] Maybe drop `PRBOT_CONFIG_PATH` environment variable in favor of `--config path/to/config.yaml` cli attribute
 - [ ] Configure SonarQube PR branch naming pattern for more flexibility (currently focused on Jenkins with [Gitea Plugin](https://github.com/jenkinsci/gitea-plugin))
 - [ ] Configuration live reloading
