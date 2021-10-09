@@ -28,7 +28,7 @@ func Serve(c *cli.Context) error {
 	r.HandleFunc("/hooks/sonarqube", NewSonarQubeWebhookHandler(giteaSdk.New(), sqSdk.New()).Handle).Methods("POST").Headers("X-SonarQube-Project", "")
 
 	srv := &http.Server{
-		Addr: "0.0.0.0:8080",
+		Addr: "0.0.0.0:3000",
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
@@ -37,7 +37,7 @@ func Serve(c *cli.Context) error {
 	}
 
 	go func() {
-		log.Println("Listen on :8080")
+		log.Println("Listen on :3000")
 		if err := srv.ListenAndServe(); err != nil {
 			log.Println(err)
 		}

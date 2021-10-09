@@ -15,7 +15,7 @@
 docker build -t gitea-sonarqube-pr-bot/dev -f contrib/Dockerfile contrib
 
 # Start the environment
-docker run --rm -it -p 49182:8080 -v "$(pwd):/projects" gitea-sonarqube-pr-bot/dev
+docker run --rm -it -p 49182:3000 -v "$(pwd):/projects" gitea-sonarqube-pr-bot/dev
 
 # Build the binary
 go build ./cmd/gitea-sonarqube-bot

@@ -5,6 +5,6 @@ RUN apk --no-cache add build-base git bash
 WORKDIR /projects
 
 VOLUME ["/projects"]
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["bash"]
