@@ -7,30 +7,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type GiteaRepository struct {
-	Owner string
-	Name  string
-}
-
-type giteaConfig struct {
-	Url     string
-	Token   *token
-	Webhook *webhook
-}
-
-type sonarQubeConfig struct {
-	Url     string
-	Token   *token
-	Webhook *webhook
-}
-
-type Project struct {
-	SonarQube struct {
-		Key string
-	} `mapstructure:"sonarqube"`
-	Gitea GiteaRepository
-}
-
 var (
 	Gitea     giteaConfig
 	SonarQube sonarQubeConfig
