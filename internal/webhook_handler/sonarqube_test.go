@@ -30,6 +30,10 @@ func (h *GiteaSdkMock) PostComment(_ settings.GiteaRepository, _ int, _ string) 
 	return nil
 }
 
+func (h *GiteaSdkMock) UpdateStatus(_ settings.GiteaRepository, w *webhook.Webhook) error {
+	return nil
+}
+
 type SQSdkMock struct {
 	mock.Mock
 }
