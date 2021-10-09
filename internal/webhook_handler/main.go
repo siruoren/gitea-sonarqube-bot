@@ -1,60 +1,50 @@
 package webhook_handler
 
 import (
-	"context"
-	"flag"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"time"
 
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 
-	"github.com/gorilla/mux"
+	"github.com/fvbock/endless"
+	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 )
+
+func addPingApi(r *gin.Engine) {
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+}
+
+type validSonarQubeEndpointHeader struct {
+	SonarQubeProject string `header:"X-SonarQube-Project"`
+}
+
+func addSonarQubeEndpoint(r *gin.Engine) {
+	webhookHandler := NewSonarQubeWebhookHandler(giteaSdk.New(), sqSdk.New())
+	r.POST("/hooks/sonarqube", func(c *gin.Context) {
+		h := validSonarQubeEndpointHeader{}
+
+		if err := c.ShouldBindHeader(&h); err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		webhookHandler.Handle(c.Writer, c.Request)
+	})
+}
 
 func Serve(c *cli.Context) error {
 	fmt.Println("Hi! I'm the Gitea-SonarQube-PR bot. At your service.")
 
-	var wait time.Duration
-	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish")
-	flag.Parse()
+	r := gin.Default()
 
-	r := mux.NewRouter()
-	r.HandleFunc("/hooks/sonarqube", NewSonarQubeWebhookHandler(giteaSdk.New(), sqSdk.New()).Handle).Methods("POST").Headers("X-SonarQube-Project", "")
+	addPingApi(r)
+	addSonarQubeEndpoint(r)
 
-	srv := &http.Server{
-		Addr: "0.0.0.0:3000",
-		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
-		Handler:      r,
-	}
-
-	go func() {
-		log.Println("Listen on :3000")
-		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
-		}
-	}()
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-
-	// Block until we receive our signal.
-	<-ch
-
-	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
-	defer cancel()
-	srv.Shutdown(ctx)
-	log.Println("Shutting down webhook server")
-	os.Exit(0)
-
-	return nil
+	return endless.ListenAndServe(":3000", r)
 }
