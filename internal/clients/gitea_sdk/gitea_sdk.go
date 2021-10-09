@@ -28,7 +28,7 @@ func (sdk *GiteaSdk) PostComment(repo settings.GiteaRepository, idx int, msg str
 func New() *GiteaSdk {
 	client, err := gitea.NewClient(settings.Gitea.Url, gitea.SetToken(settings.Gitea.Token.Value))
 	if err != nil {
-		panic(fmt.Errorf("Cannot initialize Gitea client: %w", err))
+		panic(fmt.Errorf("cannot initialize Gitea client: %w", err))
 	}
 
 	return &GiteaSdk{client}

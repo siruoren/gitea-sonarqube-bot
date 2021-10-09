@@ -20,34 +20,23 @@ type SonarQubeWebhookHandler struct {
 	sqSdk        sqSdk.SonarQubeSdkInterface
 }
 
-func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) string {
-	a, _ := h.sqSdk.GetMeasures(w.Project.Key, w.Branch.Name)
-
-	log.Println(a)
-
-	status := ":white_check_mark:"
-	if w.QualityGate.Status != "OK" {
-		status = ":x:"
+func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) (string, error) {
+	m, err := h.sqSdk.GetMeasures(w.Project.Key, w.Branch.Name)
+	if err != nil {
+		return "", err
 	}
 
-	measures := `| Metric | Current |
-| -------- | -------- |
-| Bugs | 123 |
-| Code Smells | 1 |
-| Vulnerabilities | 1 |
-`
+	message := make([]string, 5)
+	message[0] = w.GetRenderedQualityGate()
+	message[1] = m.GetRenderedMarkdownTable()
+	message[2] = fmt.Sprintf("See [SonarQube](%s) for details.", w.Branch.Url)
+	message[3] = "---"
+	message[4] = "- If you want the bot to check again, post `/sqbot review`"
 
-	msg := `**Quality Gate**: %s
-
-**Measures**
-
-%s
-
-See [SonarQube](https://example.com/sonarqube/dashboard?id=pr-bot&pullRequest=PR-1) for details.`
-	return fmt.Sprintf(msg, status, measures)
+	return strings.Join(message, "\n\n"), nil
 }
 
-func (_ *SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) (bool, int) {
+func (*SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) (bool, int) {
 	for idx, proj := range p {
 		if proj.SonarQube.Key == n {
 			return true, idx
@@ -65,7 +54,11 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 
 	h.fetchDetails(w)
 
-	comment := h.composeGiteaComment(w)
+	comment, err := h.composeGiteaComment(w)
+	if err != nil {
+		log.Printf("Error composing Gitea comment: %s", err.Error())
+		return
+	}
 	h.giteaSdk.PostComment(repo, w.PRIndex, comment)
 }
 

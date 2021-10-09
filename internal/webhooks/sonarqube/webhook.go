@@ -33,6 +33,15 @@ type Webhook struct {
 	PRIndex int
 }
 
+func (w *Webhook) GetRenderedQualityGate() string {
+	status := ":white_check_mark:"
+	if w.QualityGate.Status != "OK" {
+		status = ":x:"
+	}
+
+	return fmt.Sprintf("**Quality Gate**: %s", status)
+}
+
 func New(raw []byte) (*Webhook, bool) {
 	v := viper.New()
 	v.SetConfigType("json")
@@ -61,8 +70,8 @@ func parsePRIndex(w *Webhook) (int, error) {
 	re := regexp.MustCompile(`^PR-(\d+)$`)
 	res := re.FindSubmatch([]byte(w.Branch.Name))
 	if len(res) != 2 {
-		return 0, fmt.Errorf("Branch name '%s' does not match regex '%s'.", w.Branch.Name, re.String())
+		return 0, fmt.Errorf("branch name '%s' does not match regex '%s'", w.Branch.Name, re.String())
 	}
 
-	return strconv.Atoi(fmt.Sprintf("%s", res[1]))
+	return strconv.Atoi(string(res[1]))
 }

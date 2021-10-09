@@ -2,16 +2,16 @@ package sonarqube_sdk
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
 )
 
 type SonarQubeSdkInterface interface {
-	GetMeasures(string, string) (string, error)
+	GetMeasures(string, string) (*MeasuresResponse, error)
 }
 
 type SonarQubeSdk struct {
@@ -20,20 +20,26 @@ type SonarQubeSdk struct {
 	token   string
 }
 
-func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (string, error) {
+func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (*MeasuresResponse, error) {
 	url := fmt.Sprintf("%s/api/measures/component?additionalFields=metrics&metricKeys=bugs,vulnerabilities,new_security_hotspots,violations&component=%s&pullRequest=%s", sdk.baseUrl, project, branch)
-	log.Println(url)
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		panic(fmt.Errorf("Cannot initialize Request: %w", err))
+		return nil, fmt.Errorf("cannot initialize Request: %w", err)
 	}
 	req.Header.Add("Authorization", sdk.basicAuth())
-	resp, _ := sdk.client.Do(req)
+	rawResp, _ := sdk.client.Do(req)
+	if rawResp.Body != nil {
+		defer rawResp.Body.Close()
+	}
 
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	body, _ := io.ReadAll(rawResp.Body)
+	response := &MeasuresResponse{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse response from SonarQube: %w", err)
+	}
 
-	return string(body), nil
+	return response, nil
 }
 
 func (sdk *SonarQubeSdk) basicAuth() string {

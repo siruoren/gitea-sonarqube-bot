@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	sqSDK "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 
@@ -33,8 +34,8 @@ type SQSdkMock struct {
 	mock.Mock
 }
 
-func (h *SQSdkMock) GetMeasures(project string, branch string) (string, error) {
-	return "", nil
+func (h *SQSdkMock) GetMeasures(project string, branch string) (*sqSDK.MeasuresResponse, error) {
+	return &sqSDK.MeasuresResponse{}, nil
 }
 
 func defaultMockPreparation(h *HandlerPartialMock) {
