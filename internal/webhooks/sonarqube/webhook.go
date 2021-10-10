@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"regexp"
-	"strconv"
+
+	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
 
 	"github.com/spf13/viper"
 )
@@ -55,7 +55,7 @@ func New(raw []byte) (*Webhook, bool) {
 		return w, false
 	}
 
-	idx, err1 := parsePRIndex(w)
+	idx, err1 := sqSdk.ParsePRIndex(w.Branch.Name)
 	if err1 != nil {
 		log.Printf("Error parsing PR index: %s", err1.Error())
 		return w, false
@@ -64,14 +64,4 @@ func New(raw []byte) (*Webhook, bool) {
 	w.PRIndex = idx
 
 	return w, true
-}
-
-func parsePRIndex(w *Webhook) (int, error) {
-	re := regexp.MustCompile(`^PR-(\d+)$`)
-	res := re.FindSubmatch([]byte(w.Branch.Name))
-	if len(res) != 2 {
-		return 0, fmt.Errorf("branch name '%s' does not match regex '%s'", w.Branch.Name, re.String())
-	}
-
-	return strconv.Atoi(string(res[1]))
 }

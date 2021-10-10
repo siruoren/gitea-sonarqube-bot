@@ -47,6 +47,14 @@ func (h *SQSdkMock) GetMeasures(project string, branch string) (*sqSdk.MeasuresR
 	return &sqSdk.MeasuresResponse{}, nil
 }
 
+func (h *SQSdkMock) GetPullRequestUrl(project string, index int64) string {
+	return ""
+}
+
+func (h *SQSdkMock) GetPullRequest(project string, index int64) (*sqSdk.PullRequest, error) {
+	return nil, nil
+}
+
 func defaultMockPreparation(h *HandlerPartialMock) {
 	h.On("fetchDetails", mock.Anything).Return(nil)
 }

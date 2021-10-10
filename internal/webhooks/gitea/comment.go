@@ -72,10 +72,21 @@ func (w *CommentWebhook) ProcessData(gSDK giteaSdk.GiteaSdkInterface, sqSDK sqSd
 	}
 	log.Printf("Fetching SonarQube data...")
 
+	pr, err := sqSDK.GetPullRequest(w.ConfiguredProject.SonarQube.Key, w.Issue.Number)
+	if err != nil {
+		log.Printf("Error loading PR data from SonarQube: %s", err.Error())
+		return
+	}
+
+	status := giteaSdk.StatusOK
+	if pr.Status.QualityGateStatus != "OK" {
+		status = giteaSdk.StatusFailure
+	}
+
 	_ = gSDK.UpdateStatus(w.ConfiguredProject.Gitea, headRef, giteaSdk.StatusDetails{
-		Url:     "",
-		Message: "OK",
-		State:   giteaSdk.StatusOK,
+		Url:     sqSDK.GetPullRequestUrl(w.ConfiguredProject.SonarQube.Key, w.Issue.Number),
+		Message: pr.Status.QualityGateStatus,
+		State:   status,
 	})
 }
 
