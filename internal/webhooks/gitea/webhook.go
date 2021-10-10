@@ -6,15 +6,10 @@ import (
 	"log"
 	"strings"
 
+	"gitea-sonarqube-pr-bot/internal/actions"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
-)
-
-type BotAction string
-
-const (
-	ActionReview BotAction = "/pr-bot review"
 )
 
 type issue struct {
@@ -60,7 +55,7 @@ func (w *Webhook) Validate() error {
 		return fmt.Errorf("ignore hook for action others than created")
 	}
 
-	if !strings.HasPrefix(w.Comment.Body, "/pr-bot") {
+	if !strings.HasPrefix(w.Comment.Body, actions.ActionPrefix) {
 		return fmt.Errorf("ignore hook for non-bot action comment")
 	}
 

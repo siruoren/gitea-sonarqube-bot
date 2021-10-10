@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"gitea-sonarqube-pr-bot/internal/actions"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
@@ -31,7 +32,7 @@ func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) (strin
 	message[1] = m.GetRenderedMarkdownTable()
 	message[2] = fmt.Sprintf("See [SonarQube](%s) for details.", w.Branch.Url)
 	message[3] = "---"
-	message[4] = "- If you want the bot to check again, post `/sq-bot review`"
+	message[4] = fmt.Sprintf("- If you want the bot to check again, post `%s`", actions.ActionReview)
 
 	return strings.Join(message, "\n\n"), nil
 }
