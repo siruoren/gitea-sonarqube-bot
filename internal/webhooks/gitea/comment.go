@@ -21,7 +21,7 @@ type comment struct {
 	Body string `json:"body"`
 }
 
-type Webhook struct {
+type CommentWebhook struct {
 	Action            string  `json:"action"`
 	IsPR              bool    `json:"is_pull"`
 	Issue             issue   `json:"issue"`
@@ -29,7 +29,7 @@ type Webhook struct {
 	ConfiguredProject settings.Project
 }
 
-func (w *Webhook) inProjectsMapping(p []settings.Project) (bool, int) {
+func (w *CommentWebhook) inProjectsMapping(p []settings.Project) (bool, int) {
 	owner := w.Issue.Repository.Owner
 	name := w.Issue.Repository.Name
 	for idx, proj := range p {
@@ -41,7 +41,7 @@ func (w *Webhook) inProjectsMapping(p []settings.Project) (bool, int) {
 	return false, 0
 }
 
-func (w *Webhook) Validate() error {
+func (w *CommentWebhook) Validate() error {
 	if !w.IsPR {
 		return fmt.Errorf("ignore non-PR hook")
 	}
@@ -64,7 +64,7 @@ func (w *Webhook) Validate() error {
 	return nil
 }
 
-func (w *Webhook) ProcessData(gSDK giteaSdk.GiteaSdkInterface, sqSDK sqSdk.SonarQubeSdkInterface) {
+func (w *CommentWebhook) ProcessData(gSDK giteaSdk.GiteaSdkInterface, sqSDK sqSdk.SonarQubeSdkInterface) {
 	headRef, err := gSDK.DetermineHEAD(w.ConfiguredProject.Gitea, w.Issue.Number)
 	if err != nil {
 		log.Printf("Error retrieving HEAD ref: %s", err.Error())
@@ -79,8 +79,8 @@ func (w *Webhook) ProcessData(gSDK giteaSdk.GiteaSdkInterface, sqSDK sqSdk.Sonar
 	})
 }
 
-func New(raw []byte) (*Webhook, bool) {
-	w := &Webhook{}
+func NewCommentWebhook(raw []byte) (*CommentWebhook, bool) {
+	w := &CommentWebhook{}
 	err := json.Unmarshal(raw, &w)
 	if err != nil {
 		log.Printf("Error parsing Gitea webhook: %s", err.Error())

@@ -6,6 +6,7 @@ type State gitea.StatusState
 
 const (
 	StatusOK      State = State(gitea.StatusSuccess)
+	StatusPending State = State(gitea.StatusPending)
 	StatusFailure State = State(gitea.StatusFailure)
 )
 

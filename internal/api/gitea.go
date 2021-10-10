@@ -37,13 +37,28 @@ func (h *GiteaWebhookHandler) parseBody(rw http.ResponseWriter, r *http.Request)
 func (h *GiteaWebhookHandler) HandleSynchronize(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
-	_, err := h.parseBody(rw, r)
+	raw, err := h.parseBody(rw, r)
 	if err != nil {
+		return
+	}
+
+	w, ok := webhook.NewPullWebhook(raw)
+	if !ok {
+		rw.WriteHeader(http.StatusUnprocessableEntity)
+		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
+		return
+	}
+
+	if err := w.Validate(); err != nil {
+		rw.WriteHeader(http.StatusOK)
+		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
 		return
 	}
 
 	rw.WriteHeader(http.StatusOK)
 	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
+
+	w.ProcessData(h.giteaSdk, h.sqSdk)
 }
 
 func (h *GiteaWebhookHandler) HandleComment(rw http.ResponseWriter, r *http.Request) {
@@ -54,7 +69,7 @@ func (h *GiteaWebhookHandler) HandleComment(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w, ok := webhook.New(raw)
+	w, ok := webhook.NewCommentWebhook(raw)
 	if !ok {
 		rw.WriteHeader(http.StatusUnprocessableEntity)
 		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
