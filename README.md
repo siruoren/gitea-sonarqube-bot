@@ -27,9 +27,9 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
         - [x] Load "api/measures/component"
     - [x] comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
     - [x] updates status check (either failing/success)
-    - [ ] listen on "/sq-bot review" comments
-      - [ ] comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
-      - [ ] updates status check (either failing/success)
+    - [x] listen on "/sq-bot review" comments
+      - [x] comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
+      - [x] updates status check (either failing/success)
 
 ## Setup
 
