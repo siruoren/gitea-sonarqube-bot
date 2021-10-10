@@ -2,7 +2,6 @@ package sonarqube
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
@@ -31,15 +30,6 @@ type Webhook struct {
 		}
 	} `mapstructure:"qualityGate"`
 	PRIndex int
-}
-
-func (w *Webhook) GetRenderedQualityGate() string {
-	status := ":white_check_mark:"
-	if w.QualityGate.Status != "OK" {
-		status = ":x:"
-	}
-
-	return fmt.Sprintf("**Quality Gate**: %s", status)
 }
 
 func New(raw []byte) (*Webhook, bool) {

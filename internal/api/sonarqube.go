@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-	"gitea-sonarqube-pr-bot/internal/actions"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
 	"gitea-sonarqube-pr-bot/internal/settings"
@@ -19,22 +18,6 @@ type SonarQubeWebhookHandler struct {
 	fetchDetails func(w *webhook.Webhook)
 	giteaSdk     giteaSdk.GiteaSdkInterface
 	sqSdk        sqSdk.SonarQubeSdkInterface
-}
-
-func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) (string, error) {
-	m, err := h.sqSdk.GetMeasures(w.Project.Key, w.Branch.Name)
-	if err != nil {
-		return "", err
-	}
-
-	message := make([]string, 5)
-	message[0] = w.GetRenderedQualityGate()
-	message[1] = m.GetRenderedMarkdownTable()
-	message[2] = fmt.Sprintf("See [SonarQube](%s) for details.", w.Branch.Url)
-	message[3] = "---"
-	message[4] = fmt.Sprintf("- If you want the bot to check again, post `%s`", actions.ActionReview)
-
-	return strings.Join(message, "\n\n"), nil
 }
 
 func (*SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) (bool, int) {
@@ -65,9 +48,13 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 		State:   status,
 	})
 
-	comment, err := h.composeGiteaComment(w)
+	comment, err := h.sqSdk.ComposeGiteaComment(&sqSdk.CommentComposeData{
+		Key:         w.Project.Key,
+		PRName:      w.Branch.Name,
+		Url:         w.Branch.Url,
+		QualityGate: w.QualityGate.Status,
+	})
 	if err != nil {
-		log.Printf("Error composing Gitea comment: %s", err.Error())
 		return
 	}
 	h.giteaSdk.PostComment(repo, w.PRIndex, comment)

@@ -83,11 +83,24 @@ func (w *CommentWebhook) ProcessData(gSDK giteaSdk.GiteaSdkInterface, sqSDK sqSd
 		status = giteaSdk.StatusFailure
 	}
 
+	url := sqSDK.GetPullRequestUrl(w.ConfiguredProject.SonarQube.Key, w.Issue.Number)
+
 	_ = gSDK.UpdateStatus(w.ConfiguredProject.Gitea, headRef, giteaSdk.StatusDetails{
-		Url:     sqSDK.GetPullRequestUrl(w.ConfiguredProject.SonarQube.Key, w.Issue.Number),
+		Url:     url,
 		Message: pr.Status.QualityGateStatus,
 		State:   status,
 	})
+
+	comment, err := sqSDK.ComposeGiteaComment(&sqSdk.CommentComposeData{
+		Key:         w.ConfiguredProject.SonarQube.Key,
+		PRName:      sqSdk.PRNameFromIndex(w.Issue.Number),
+		Url:         url,
+		QualityGate: pr.Status.QualityGateStatus,
+	})
+	if err != nil {
+		return
+	}
+	gSDK.PostComment(w.ConfiguredProject.Gitea, int(w.Issue.Number), comment)
 }
 
 func NewCommentWebhook(raw []byte) (*CommentWebhook, bool) {

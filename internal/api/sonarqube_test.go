@@ -55,6 +55,10 @@ func (h *SQSdkMock) GetPullRequest(project string, index int64) (*sqSdk.PullRequ
 	return nil, nil
 }
 
+func (h *SQSdkMock) ComposeGiteaComment(data *sqSdk.CommentComposeData) (string, error) {
+	return "", nil
+}
+
 func defaultMockPreparation(h *HandlerPartialMock) {
 	h.On("fetchDetails", mock.Anything).Return(nil)
 }

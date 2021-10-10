@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
+	"gitea-sonarqube-pr-bot/internal/actions"
 	"gitea-sonarqube-pr-bot/internal/settings"
 )
 
@@ -27,10 +29,27 @@ func PRNameFromIndex(index int64) string {
 	return fmt.Sprintf("PR-%d", index)
 }
 
+func GetRenderedQualityGate(qg string) string {
+	status := ":white_check_mark:"
+	if qg != "OK" {
+		status = ":x:"
+	}
+
+	return fmt.Sprintf("**Quality Gate**: %s", status)
+}
+
 type SonarQubeSdkInterface interface {
 	GetMeasures(string, string) (*MeasuresResponse, error)
 	GetPullRequestUrl(string, int64) string
 	GetPullRequest(string, int64) (*PullRequest, error)
+	ComposeGiteaComment(*CommentComposeData) (string, error)
+}
+
+type CommentComposeData struct {
+	Key         string
+	PRName      string
+	Url         string
+	QualityGate string
 }
 
 type SonarQubeSdk struct {
@@ -102,6 +121,23 @@ func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (*MeasuresRe
 	}
 
 	return response, nil
+}
+
+func (sdk *SonarQubeSdk) ComposeGiteaComment(data *CommentComposeData) (string, error) {
+	m, err := sdk.GetMeasures(data.Key, data.PRName)
+	if err != nil {
+		log.Printf("Error composing Gitea comment: %s", err.Error())
+		return "", err
+	}
+
+	message := make([]string, 5)
+	message[0] = GetRenderedQualityGate(data.QualityGate)
+	message[1] = m.GetRenderedMarkdownTable()
+	message[2] = fmt.Sprintf("See [SonarQube](%s) for details.", data.Url)
+	message[3] = "---"
+	message[4] = fmt.Sprintf("- If you want the bot to check again, post `%s`", actions.ActionReview)
+
+	return strings.Join(message, "\n\n"), nil
 }
 
 func (sdk *SonarQubeSdk) basicAuth() string {
