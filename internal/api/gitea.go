@@ -17,9 +17,7 @@ type GiteaWebhookHandler struct {
 	sqSdk    sqSdk.SonarQubeSdkInterface
 }
 
-func (h *GiteaWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-
+func (h *GiteaWebhookHandler) parseBody(rw http.ResponseWriter, r *http.Request) ([]byte, error) {
 	if r.Body != nil {
 		defer r.Body.Close()
 	}
@@ -30,6 +28,29 @@ func (h *GiteaWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 		log.Printf("Error reading request body %s", err.Error())
 		rw.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
+		return nil, err
+	}
+
+	return raw, nil
+}
+
+func (h *GiteaWebhookHandler) HandleSynchronize(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
+	_, err := h.parseBody(rw, r)
+	if err != nil {
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
+}
+
+func (h *GiteaWebhookHandler) HandleComment(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
+	raw, err := h.parseBody(rw, r)
+	if err != nil {
 		return
 	}
 
