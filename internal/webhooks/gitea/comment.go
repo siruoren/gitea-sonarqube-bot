@@ -59,6 +59,10 @@ func (w *CommentWebhook) Validate() error {
 		return fmt.Errorf("ignore hook for non-bot action comment")
 	}
 
+	if w.Comment.Body != string(actions.ActionReview) {
+		return fmt.Errorf("ignore hook for unknown bot action")
+	}
+
 	w.ConfiguredProject = settings.Projects[pIdx]
 
 	return nil
