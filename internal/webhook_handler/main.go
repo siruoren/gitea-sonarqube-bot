@@ -21,7 +21,7 @@ func addPingApi(r *gin.Engine) {
 }
 
 type validSonarQubeEndpointHeader struct {
-	SonarQubeProject string `header:"X-SonarQube-Project"`
+	SonarQubeProject string `header:"X-SonarQube-Project" binding:"required"`
 }
 
 func addSonarQubeEndpoint(r *gin.Engine) {
