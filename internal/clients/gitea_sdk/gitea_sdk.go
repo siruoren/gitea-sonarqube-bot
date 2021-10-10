@@ -3,14 +3,15 @@ package gitea_sdk
 import (
 	"fmt"
 	"gitea-sonarqube-pr-bot/internal/settings"
-	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
+	"log"
 
 	"code.gitea.io/sdk/gitea"
 )
 
 type GiteaSdkInterface interface {
 	PostComment(settings.GiteaRepository, int, string) error
-	UpdateStatus(settings.GiteaRepository, *webhook.Webhook) error
+	UpdateStatus(settings.GiteaRepository, string, string, string, gitea.StatusState) error
+	DetermineHEAD(settings.GiteaRepository, int64) (string, error)
 }
 
 type GiteaSdk struct {
@@ -27,24 +28,29 @@ func (sdk *GiteaSdk) PostComment(repo settings.GiteaRepository, idx int, msg str
 	return err
 }
 
-func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, w *webhook.Webhook) error {
-	status := gitea.StatusPending
-	switch w.QualityGate.Status {
-	case "OK":
-		status = gitea.StatusSuccess
-	case "ERROR":
-		status = gitea.StatusFailure
-	}
+func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, ref string, targetUrl string, description string, status gitea.StatusState) error {
 	opt := gitea.CreateStatusOption{
-		TargetURL:   w.Branch.Url,
+		TargetURL:   targetUrl,
 		Context:     "gitea-sonarqube-pr-bot",
-		Description: w.QualityGate.Status,
+		Description: description,
 		State:       status,
 	}
 
-	_, _, err := sdk.client.CreateStatus(repo.Owner, repo.Name, w.Revision, opt)
+	_, _, err := sdk.client.CreateStatus(repo.Owner, repo.Name, ref, opt)
+	if err != nil {
+		log.Printf("Error updating status: %s", err.Error())
+	}
 
 	return err
+}
+
+func (sdk *GiteaSdk) DetermineHEAD(repo settings.GiteaRepository, idx int64) (string, error) {
+	pr, _, err := sdk.client.GetPullRequest(repo.Owner, repo.Name, idx)
+	if err != nil {
+		return "", err
+	}
+
+	return pr.Head.Sha, nil
 }
 
 func New() *GiteaSdk {

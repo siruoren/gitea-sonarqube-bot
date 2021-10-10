@@ -12,6 +12,8 @@ import (
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
+
+	"code.gitea.io/sdk/gitea"
 )
 
 type SonarQubeWebhookHandler struct {
@@ -31,7 +33,7 @@ func (h *SonarQubeWebhookHandler) composeGiteaComment(w *webhook.Webhook) (strin
 	message[1] = m.GetRenderedMarkdownTable()
 	message[2] = fmt.Sprintf("See [SonarQube](%s) for details.", w.Branch.Url)
 	message[3] = "---"
-	message[4] = "- If you want the bot to check again, post `/sqbot review`"
+	message[4] = "- If you want the bot to check again, post `/sq-bot review`"
 
 	return strings.Join(message, "\n\n"), nil
 }
@@ -54,10 +56,14 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 
 	h.fetchDetails(w)
 
-	err := h.giteaSdk.UpdateStatus(repo, w)
-	if err != nil {
-		log.Printf("Error updating status: %s", err.Error())
+	status := gitea.StatusPending
+	switch w.QualityGate.Status {
+	case "OK":
+		status = gitea.StatusSuccess
+	case "ERROR":
+		status = gitea.StatusFailure
 	}
+	_ = h.giteaSdk.UpdateStatus(repo, w.Revision, w.Branch.Url, w.QualityGate.Status, status)
 
 	comment, err := h.composeGiteaComment(w)
 	if err != nil {
@@ -82,8 +88,11 @@ func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request
 
 	log.Printf("Received hook for project '%s'. Processing data.", projectName)
 
+	if r.Body != nil {
+		defer r.Body.Close()
+	}
+
 	raw, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
 	if err != nil {
 		log.Printf("Error reading request body %s", err.Error())
 		rw.WriteHeader(http.StatusInternalServerError)

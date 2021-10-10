@@ -10,6 +10,7 @@ import (
 	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 
+	"code.gitea.io/sdk/gitea"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -30,7 +31,11 @@ func (h *GiteaSdkMock) PostComment(_ settings.GiteaRepository, _ int, _ string) 
 	return nil
 }
 
-func (h *GiteaSdkMock) UpdateStatus(_ settings.GiteaRepository, w *webhook.Webhook) error {
+func (h *GiteaSdkMock) DetermineHEAD(_ settings.GiteaRepository, _ int64) (string, error) {
+	return "", nil
+}
+
+func (h *GiteaSdkMock) UpdateStatus(_ settings.GiteaRepository, _ string, _ string, _ string, _ gitea.StatusState) error {
 	return nil
 }
 

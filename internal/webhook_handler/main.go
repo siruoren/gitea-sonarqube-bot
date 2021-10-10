@@ -38,6 +38,13 @@ func addSonarQubeEndpoint(r *gin.Engine) {
 	})
 }
 
+func addGiteaEndpoint(r *gin.Engine) {
+	webhookHandler := NewGiteaWebhookHandler(giteaSdk.New(), sqSdk.New())
+	r.POST("/hooks/gitea", func(c *gin.Context) {
+		webhookHandler.Handle(c.Writer, c.Request)
+	})
+}
+
 func Serve(c *cli.Context) error {
 	fmt.Println("Hi! I'm the Gitea-SonarQube-PR bot. At your service.")
 
@@ -45,6 +52,7 @@ func Serve(c *cli.Context) error {
 
 	addPingApi(r)
 	addSonarQubeEndpoint(r)
+	addGiteaEndpoint(r)
 
 	return endless.ListenAndServe(":3000", r)
 }
