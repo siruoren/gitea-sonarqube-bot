@@ -1,4 +1,4 @@
-package webhook_handler
+package api
 
 import (
 	"bytes"
