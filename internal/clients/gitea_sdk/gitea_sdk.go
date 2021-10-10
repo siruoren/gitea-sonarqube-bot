@@ -10,7 +10,7 @@ import (
 
 type GiteaSdkInterface interface {
 	PostComment(settings.GiteaRepository, int, string) error
-	UpdateStatus(settings.GiteaRepository, string, string, string, gitea.StatusState) error
+	UpdateStatus(settings.GiteaRepository, string, StatusDetails) error
 	DetermineHEAD(settings.GiteaRepository, int64) (string, error)
 }
 
@@ -28,13 +28,15 @@ func (sdk *GiteaSdk) PostComment(repo settings.GiteaRepository, idx int, msg str
 	return err
 }
 
-func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, ref string, targetUrl string, description string, status gitea.StatusState) error {
+func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, ref string, details StatusDetails) error {
 	opt := gitea.CreateStatusOption{
-		TargetURL:   targetUrl,
+		TargetURL:   details.Url,
 		Context:     "gitea-sonarqube-pr-bot",
-		Description: description,
-		State:       status,
+		Description: details.Message,
+		State:       gitea.StatusState(details.State),
 	}
+
+	opt.TargetURL = "gitea-sonarqube-pr-bot"
 
 	_, _, err := sdk.client.CreateStatus(repo.Owner, repo.Name, ref, opt)
 	if err != nil {

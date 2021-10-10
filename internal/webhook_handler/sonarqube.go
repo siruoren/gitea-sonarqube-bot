@@ -12,8 +12,6 @@ import (
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
-
-	"code.gitea.io/sdk/gitea"
 )
 
 type SonarQubeWebhookHandler struct {
@@ -56,14 +54,15 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 
 	h.fetchDetails(w)
 
-	status := gitea.StatusPending
-	switch w.QualityGate.Status {
-	case "OK":
-		status = gitea.StatusSuccess
-	case "ERROR":
-		status = gitea.StatusFailure
+	status := giteaSdk.StatusOK
+	if w.QualityGate.Status != "OK" {
+		status = giteaSdk.StatusFailure
 	}
-	_ = h.giteaSdk.UpdateStatus(repo, w.Revision, w.Branch.Url, w.QualityGate.Status, status)
+	_ = h.giteaSdk.UpdateStatus(repo, w.Revision, giteaSdk.StatusDetails{
+		Url:     w.Branch.Url,
+		Message: w.QualityGate.Status,
+		State:   status,
+	})
 
 	comment, err := h.composeGiteaComment(w)
 	if err != nil {

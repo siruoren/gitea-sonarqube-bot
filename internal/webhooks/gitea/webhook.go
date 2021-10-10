@@ -9,8 +9,6 @@ import (
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
-
-	"code.gitea.io/sdk/gitea"
 )
 
 type BotAction string
@@ -77,11 +75,13 @@ func (w *Webhook) ProcessData(gSDK giteaSdk.GiteaSdkInterface, sqSDK sqSdk.Sonar
 		log.Printf("Error retrieving HEAD ref: %s", err.Error())
 		return
 	}
-	_ = gSDK.UpdateStatus(w.ConfiguredProject.Gitea, headRef, "", "Analysis pending...", gitea.StatusPending)
-
 	log.Printf("Fetching SonarQube data...")
 
-	_ = gSDK.UpdateStatus(w.ConfiguredProject.Gitea, headRef, "", "OK", gitea.StatusSuccess)
+	_ = gSDK.UpdateStatus(w.ConfiguredProject.Gitea, headRef, giteaSdk.StatusDetails{
+		Url:     "",
+		Message: "OK",
+		State:   giteaSdk.StatusOK,
+	})
 }
 
 func New(raw []byte) (*Webhook, bool) {
