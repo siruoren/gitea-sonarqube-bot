@@ -36,8 +36,6 @@ func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, ref string, det
 		State:       gitea.StatusState(details.State),
 	}
 
-	opt.TargetURL = "gitea-sonarqube-pr-bot"
-
 	_, _, err := sdk.client.CreateStatus(repo.Owner, repo.Name, ref, opt)
 	if err != nil {
 		log.Printf("Error updating status: %s", err.Error())
