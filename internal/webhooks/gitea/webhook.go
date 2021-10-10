@@ -8,7 +8,7 @@ import (
 
 	"gitea-sonarqube-pr-bot/internal/actions"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
+	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
 	"gitea-sonarqube-pr-bot/internal/settings"
 )
 

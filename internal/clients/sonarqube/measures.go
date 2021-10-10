@@ -1,4 +1,4 @@
-package sonarqube_sdk
+package sonarqube
 
 import (
 	"fmt"
