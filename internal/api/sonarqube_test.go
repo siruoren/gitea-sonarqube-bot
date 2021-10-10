@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	giteaSDK "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
+	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSDK "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
@@ -35,7 +35,7 @@ func (h *GiteaSdkMock) DetermineHEAD(_ settings.GiteaRepository, _ int64) (strin
 	return "", nil
 }
 
-func (h *GiteaSdkMock) UpdateStatus(_ settings.GiteaRepository, _ string, _ giteaSDK.StatusDetails) error {
+func (h *GiteaSdkMock) UpdateStatus(_ settings.GiteaRepository, _ string, _ giteaSdk.StatusDetails) error {
 	return nil
 }
 

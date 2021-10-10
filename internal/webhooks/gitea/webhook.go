@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
+	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 	"gitea-sonarqube-pr-bot/internal/settings"
 )

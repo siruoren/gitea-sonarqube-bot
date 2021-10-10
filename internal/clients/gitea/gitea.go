@@ -1,4 +1,4 @@
-package gitea_sdk
+package gitea
 
 import (
 	"fmt"

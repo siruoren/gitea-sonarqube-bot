@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea_sdk"
+	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube_sdk"
 
 	"github.com/fvbock/endless"
