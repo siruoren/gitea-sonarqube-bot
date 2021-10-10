@@ -38,10 +38,30 @@ func addSonarQubeEndpoint(r *gin.Engine) {
 	})
 }
 
+type validGiteaEndpointHeader struct {
+	GiteaEvent string `header:"X-Gitea-Event" binding:"required"`
+}
+
 func addGiteaEndpoint(r *gin.Engine) {
 	webhookHandler := NewGiteaWebhookHandler(giteaSdk.New(), sqSdk.New())
 	r.POST("/hooks/gitea", func(c *gin.Context) {
-		webhookHandler.Handle(c.Writer, c.Request)
+		h := validGiteaEndpointHeader{}
+
+		if err := c.ShouldBindHeader(&h); err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		switch h.GiteaEvent {
+		case "pull_request":
+			fmt.Println("Pull Request activity")
+		case "issue_comment":
+			webhookHandler.Handle(c.Writer, c.Request)
+		default:
+			c.JSON(http.StatusOK, gin.H{
+				"message": "ignore unknown event",
+			})
+		}
 	})
 }
 
