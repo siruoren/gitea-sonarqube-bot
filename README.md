@@ -8,6 +8,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 
 - [Gitea SonarQube PR Bot](#gitea-sonarqube-pr-bot)
   - [Workflow](#workflow)
+  - [Requirements](#requirements)
   - [Setup](#setup)
   - [Bot configuration](#bot-configuration)
   - [Contributing](#contributing)
@@ -30,6 +31,10 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
     - [x] listen on "/sq-bot review" comments
       - [x] comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
       - [x] updates status check (either failing/success)
+
+## Requirements
+
+This bot is designed to interact with [SonarQube _Developer_ edition](https://www.sonarsource.com/plans-and-pricing/) and above due to its pull request features. It will most likely work with public SonarCloud because it includes that feature for open source projects.
 
 ## Setup
 
@@ -72,8 +77,8 @@ NOTES:
 - [ ] Configuration live reloading
 - [ ] _Caching_ of outgoing requests in case the target is not available
 - [ ] Parsable logging for monitoring
-- [ ] Official image for containerized hosting
-- [ ] Helm chart for Kubernetes
+- [x] Official image for containerized hosting
+- [x] Helm chart for Kubernetes
 
 ### Possible improvements
 
