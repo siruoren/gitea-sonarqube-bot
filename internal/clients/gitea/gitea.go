@@ -36,9 +36,9 @@ func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, ref string, det
 		State:       gitea.StatusState(details.State),
 	}
 
-	_, _, err := sdk.client.CreateStatus(repo.Owner, repo.Name, ref, opt)
+	_, r, err := sdk.client.CreateStatus(repo.Owner, repo.Name, ref, opt)
 	if err != nil {
-		log.Printf("Error updating status: %s", err.Error())
+		log.Printf("Error updating status: response code: %d | error: '%s'", r.StatusCode, err.Error())
 	}
 
 	return err
