@@ -43,6 +43,13 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 - Create a token for this user that will be used by the bot.
 - Create a project/organization/system webhook pointing to `https://<bot-url>/gitea`. Consider securing it with a secret.
 
+**CI system**
+- Some CI systems may emulate a merge and therefore produce another, not yet existing commit hash that is promoted to SonarQube. 
+  This would cause the bot to fail to set the commit status in Gitea because the webhook sent by SonarQube contains that commit hash. 
+  To mitigate that situation, the bot will look inside the `properties` object for the key `sonar.analysis.sqbot`. If available, this 
+  key can contain the actual commit hash to use for updating the status in Gitea.  
+  See [SonarQube docs](https://docs.sonarqube.org/latest/project-administration/webhooks) for details.
+
 ## Bot configuration
 
 See [config.example.yaml](config/config.example.yaml) for a full configuration specification and description.

@@ -1,45 +1,50 @@
 package sonarqube
 
 import (
-	"bytes"
+	"encoding/json"
 	"log"
 
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
-
-	"github.com/spf13/viper"
 )
 
 type Webhook struct {
-	ServerUrl string `mapstructure:"serverUrl"`
-	Revision  string
+	ServerUrl string `json:"serverUrl"`
+	Revision  string `json:"revision"`
 	Project   struct {
-		Key  string
-		Name string
-		Url  string
-	}
+		Key  string `json:"key"`
+		Name string `json:"name"`
+		Url  string `json:"url"`
+	} `json:"project"`
 	Branch struct {
-		Name string
-		Type string
-		Url  string
-	}
+		Name string `json:"name"`
+		Type string `json:"type"`
+		Url  string `json:"url"`
+	} `json:"branch"`
 	QualityGate struct {
-		Status     string
+		Status     string `json:"status"`
 		Conditions []struct {
 			Metric string
 			Status string
-		}
-	} `mapstructure:"qualityGate"`
+		} `json:"conditions"`
+	} `json:"qualityGate"`
+	Properties *struct {
+		OriginalCommit string `json:"sonar.analysis.sqbot,omitempty"`
+	} `json:"properties,omitempty"`
 	PRIndex int
 }
 
-func New(raw []byte) (*Webhook, bool) {
-	v := viper.New()
-	v.SetConfigType("json")
-	v.ReadConfig(bytes.NewBuffer(raw))
+func (w *Webhook) GetRevision() string {
+	if w.Properties != nil && w.Properties.OriginalCommit != "" {
+		return w.Properties.OriginalCommit
+	}
 
+	return w.Revision
+}
+
+func New(raw []byte) (*Webhook, bool) {
 	w := &Webhook{}
 
-	err := v.Unmarshal(&w)
+	err := json.Unmarshal(raw, w)
 	if err != nil {
 		log.Printf("Error parsing SonarQube webhook: %s", err.Error())
 		return w, false

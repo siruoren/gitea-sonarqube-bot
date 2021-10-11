@@ -42,7 +42,7 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 	if w.QualityGate.Status != "OK" {
 		status = giteaSdk.StatusFailure
 	}
-	_ = h.giteaSdk.UpdateStatus(repo, w.Revision, giteaSdk.StatusDetails{
+	_ = h.giteaSdk.UpdateStatus(repo, w.GetRevision(), giteaSdk.StatusDetails{
 		Url:     w.Branch.Url,
 		Message: w.QualityGate.Status,
 		State:   status,
