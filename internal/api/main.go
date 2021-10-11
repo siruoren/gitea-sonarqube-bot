@@ -74,5 +74,9 @@ func Serve(c *cli.Context) error {
 	addSonarQubeEndpoint(r)
 	addGiteaEndpoint(r)
 
+	r.GET("/favicon.ico", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
+
 	return endless.ListenAndServe(":3000", r)
 }
