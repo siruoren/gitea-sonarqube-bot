@@ -18,6 +18,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
     - [Possible improvements](#possible-improvements)
   - [Contributing](#contributing)
   - [License](#license)
+  - [Screenshots](#screenshots)
 
 ## Workflow
 
@@ -101,3 +102,12 @@ NOTES:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
+
+---
+
+## Screenshots
+
+> Bot name and avatar depend on user configuration.
+
+![Comment](./docs/slideshow/comment.png)
+![Status](./docs/slideshow/status.png)
