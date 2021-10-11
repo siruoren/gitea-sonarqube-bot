@@ -1,0 +1,7 @@
+**
+!/cmd
+!/internal
+!/vendor
+!/docker
+!go.mod
+!go.sum
