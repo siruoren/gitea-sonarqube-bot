@@ -1,12 +1,12 @@
-# Gitea SonarQube PR Bot
+# Gitea SonarQube Bot
 
-_Gitea SonarQube PR Bot_ is a bot that receives messages from both SonarQube and Gitea to help developers 
+_Gitea SonarQube Bot_ is a bot that receives messages from both SonarQube and Gitea to help developers 
 being productive. The idea behind this project is the missing ALM integration of Gitea in SonarQube. Unfortunately, 
 this [won't be added in near future](https://github.com/SonarSource/sonarqube/pull/3248#issuecomment-701334327). 
-_Gitea SonarQube PR Bot_ aims to fill the gap between working on pull requests and being notified on quality changes. 
+_Gitea SonarQube Bot_ aims to fill the gap between working on pull requests and being notified on quality changes. 
 Luckily, both endpoints have a proper REST API to communicate with each others.
 
-- [Gitea SonarQube PR Bot](#gitea-sonarqube-pr-bot)
+- [Gitea SonarQube Bot](#gitea-sonarqube-bot)
   - [Workflow](#workflow)
   - [Requirements](#requirements)
   - [Setup](#setup)
