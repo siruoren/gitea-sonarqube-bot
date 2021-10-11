@@ -1,0 +1,6 @@
+apiVersion: v2
+name: gitea-sonarqube-bot
+description: A Helm Chart for running a bot to communicate between both Gitea and SonarQube
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

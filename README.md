@@ -36,12 +36,12 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 **SonarQube**  
 - Create a user and grant permissions to "Browse on project" for the desired project
 - Create a token for this user that will be used by the bot.
-- Create a webhook pointing to `https://<bot-url>/sonarqube`. Consider securing it with a secret.
+- Create a webhook pointing to `https://<bot-url>/hooks/sonarqube`. Consider securing it with a secret.
 
 **Gitea**  
 - Create a user and grant permissions to "Read project" for the desired projects including access to "Pull Requests"
 - Create a token for this user that will be used by the bot.
-- Create a project/organization/system webhook pointing to `https://<bot-url>/gitea`. Consider securing it with a secret.
+- Create a project/organization/system webhook pointing to `https://<bot-url>/hooks/gitea`. Consider securing it with a secret.
 
 **CI system**
 - Some CI systems may emulate a merge and therefore produce another, not yet existing commit hash that is promoted to SonarQube. 
