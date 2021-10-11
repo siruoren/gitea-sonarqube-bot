@@ -9,11 +9,14 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 - [Gitea SonarQube Bot](#gitea-sonarqube-bot)
   - [Workflow](#workflow)
   - [Requirements](#requirements)
-  - [Setup](#setup)
   - [Bot configuration](#bot-configuration)
-  - [Contributing](#contributing)
+  - [Setup](#setup)
+    - [SonarQube](#sonarqube)
+    - [Gitea](#gitea)
+    - [CI system](#ci-system)
   - [TODOs](#todos)
     - [Possible improvements](#possible-improvements)
+  - [Contributing](#contributing)
   - [License](#license)
 
 ## Workflow
@@ -36,36 +39,33 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 
 This bot is designed to interact with [SonarQube _Developer_ edition](https://www.sonarsource.com/plans-and-pricing/) and above due to its pull request features. It will most likely work with public SonarCloud because it includes that feature for open source projects.
 
-## Setup
-
-**SonarQube**  
-- Create a user and grant permissions to "Browse on project" for the desired project
-- Create a token for this user that will be used by the bot.
-- Create a webhook pointing to `https://<bot-url>/hooks/sonarqube`. Consider securing it with a secret.
-
-**Gitea**  
-- Create a user and grant permissions to "Read project" for the desired projects including access to "Pull Requests"
-- Create a token for this user that will be used by the bot.
-- Create a project/organization/system webhook pointing to `https://<bot-url>/hooks/gitea`. Consider securing it with a secret.
-
-**CI system**
-- Some CI systems may emulate a merge and therefore produce another, not yet existing commit hash that is promoted to SonarQube. 
-  This would cause the bot to fail to set the commit status in Gitea because the webhook sent by SonarQube contains that commit hash. 
-  To mitigate that situation, the bot will look inside the `properties` object for the key `sonar.analysis.sqbot`. If available, this 
-  key can contain the actual commit hash to use for updating the status in Gitea.  
-  See [SonarQube docs](https://docs.sonarqube.org/latest/project-administration/webhooks) for details.
-
 ## Bot configuration
 
 See [config.example.yaml](config/config.example.yaml) for a full configuration specification and description.
 
-## Contributing
+## Setup
 
-Expected workflow is: Fork -> Patch -> Push -> Pull Request
+### SonarQube
 
-NOTES:
+- Create a user and grant permissions to "Browse on project" for the desired project
+- Create a token for this user that will be used by the bot
+- Create a webhook pointing to `https://<bot-url>/hooks/sonarqube`
+- Consider securing it with a secret
 
-- **Please read and follow the [CONTRIBUTORS GUIDE](CONTRIBUTING.md).**
+### Gitea
+
+- Create a user and grant permissions to "Read project" for the desired projects including access to "Pull Requests"
+- Create a token for this user that will be used by the bot
+- Create a project/organization/system webhook pointing to `https://<bot-url>/hooks/gitea`
+- Consider securing the webhook with a secret
+
+### CI system
+
+Some CI systems may emulate a merge and therefore produce another, not yet existing commit hash that is promoted to SonarQube. 
+This would cause the bot to fail to set the commit status in Gitea because the webhook sent by SonarQube contains that commit hash. 
+To mitigate that situation, the bot will look inside the `properties` object for the key `sonar.analysis.sqbot`. If available, this 
+key can contain the actual commit hash to use for updating the status in Gitea.  
+See [SonarQube docs](https://docs.sonarqube.org/latest/project-administration/webhooks) for details.
 
 ## TODOs
 
@@ -79,6 +79,7 @@ NOTES:
 - [ ] Parsable logging for monitoring
 - [x] Official image for containerized hosting
 - [x] Helm chart for Kubernetes
+- [ ] Publish Helm chart + docker image
 
 ### Possible improvements
 
@@ -88,6 +89,14 @@ Therefore storing or dynamically retrieving the previous comment id and modify c
   - Read "api/project_pull_requests" to get current issue counts and current state
   - Load "api/issues/search" to get detailed information for unresolved issues
 - Maybe directly show issues via review comments
+
+## Contributing
+
+Expected workflow is: Fork -> Patch -> Push -> Pull Request
+
+NOTES:
+
+- **Please read and follow the [CONTRIBUTORS GUIDE](CONTRIBUTING.md).**
 
 ## License
 
