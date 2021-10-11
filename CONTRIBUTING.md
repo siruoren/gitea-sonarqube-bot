@@ -6,6 +6,7 @@
   - [Table of Contents](#table-of-contents)
   - [Setup development environment](#setup-development-environment)
   - [Testing](#testing)
+  - [Release](#release)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
 
 ## Setup development environment
@@ -32,6 +33,14 @@ go test ./...
 
 # or with coverage report
 go test -coverprofile cover.out ./...
+```
+
+## Release
+
+For local purposes
+
+```bash
+docker build -t gitea-sonarqube-pr-bot/prod .
 ```
 
 ## Developer Certificate of Origin (DCO)
