@@ -133,7 +133,7 @@ func (sdk *SonarQubeSdk) ComposeGiteaComment(data *CommentComposeData) (string, 
 	message := make([]string, 5)
 	message[0] = GetRenderedQualityGate(data.QualityGate)
 	message[1] = m.GetRenderedMarkdownTable()
-	message[2] = fmt.Sprintf("See [SonarQube](%s) for details.", data.Url)
+	message[2] = fmt.Sprintf(`See <a href="%s" target="_blank" rel="nofollow">SonarQube</a> for details.`, data.Url)
 	message[3] = "---"
 	message[4] = fmt.Sprintf("- If you want the bot to check again, post `%s`", actions.ActionReview)
 
