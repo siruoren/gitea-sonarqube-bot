@@ -55,6 +55,12 @@ app:
         secret: ""
         # # or path to file containing the plain text secret
         # secretFile: /bot/secrets/sonarqube/webhook-secret
+      
+      # Some useful metrics depend on the edition in use. There are various ones like code_smells, vulnerabilities, bugs, etc.
+      # By default the bot will extract "bugs,vulnerabilities,code_smells"
+      # Setting this option you can extend that default list by your own metrics.
+      additionalMetrics: []
+      # - "new_security_hotspots"
 
     # List of project mappings to take care of. Webhooks for other projects will be ignored.
     # At least one must be configured. Otherwise all webhooks (no matter which source) because the bot cannot map on its own.

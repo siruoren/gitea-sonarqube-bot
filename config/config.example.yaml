@@ -7,8 +7,8 @@ gitea:
   # User needs "Read project" permissions with access to "Pull Requests"
   token:
     value: ""
-  #  # or path to file containing the plain text secret
-  #  file: /path/to/gitea/token
+    # # or path to file containing the plain text secret
+    # file: /path/to/gitea/token
 
   # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
   # request will be ignored.
@@ -16,8 +16,8 @@ gitea:
   # exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be validated.
   webhook:
     secret: ""
-  #  # or path to file containing the plain text secret
-  #  secretFile: /path/to/gitea/webhook/secret
+    # # or path to file containing the plain text secret
+    # secretFile: /path/to/gitea/webhook/secret
 
 # SonarQube related configuration. Necessary for requesting data from the API and processing the webhook.
 sonarqube:
@@ -28,8 +28,8 @@ sonarqube:
   # User needs "Browse on project" permissions
   token:
     value: ""
-  #  # or path to file containing the plain text secret
-  #  file: /path/to/sonarqube/token
+    # # or path to file containing the plain text secret
+    # file: /path/to/sonarqube/token
 
   # If the sent webhook has a signature header, the bot validates the request payload. If the value does not match, the
   # request will be ignored.
@@ -38,8 +38,14 @@ sonarqube:
   # validated.
   webhook:
     secret: ""
-  #  # or path to file containing the plain text secret
-  #  secretFile: /path/to/sonarqube/webhook/secret
+    # # or path to file containing the plain text secret
+    # secretFile: /path/to/sonarqube/webhook/secret
+
+  # Some useful metrics depend on the edition in use. There are various ones like code_smells, vulnerabilities, bugs, etc.
+  # By default the bot will extract "bugs,vulnerabilities,code_smells"
+  # Setting this option you can extend that default list by your own metrics.
+  additionalMetrics: []
+  # - "new_security_hotspots"
 
 # List of project mappings to take care of. Webhooks for other projects will be ignored.
 # At least one must be configured. Otherwise all webhooks (no matter which source) because the bot cannot map on its own.

@@ -32,6 +32,7 @@ func newConfigReader() *viper.Viper {
 	v.SetDefault("sonarqube.token.file", "")
 	v.SetDefault("sonarqube.webhook.secret", "")
 	v.SetDefault("sonarqube.webhook.secretFile", "")
+	v.SetDefault("sonarqube.additionalMetrics", []string{})
 	v.SetDefault("projects", []Project{})
 
 	return v
@@ -43,14 +44,14 @@ func Load(configPath string) {
 
 	err := r.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error while reading config file: %w \n", err))
+		panic(fmt.Errorf("fatal error while reading config file: %w", err))
 	}
 
 	var projects []Project
 
 	err = r.UnmarshalKey("projects", &projects)
 	if err != nil {
-		panic(fmt.Errorf("Unable to load project mapping: %s", err.Error()))
+		panic(fmt.Errorf("unable to load project mapping: %s", err.Error()))
 	}
 
 	if len(projects) == 0 {
@@ -67,8 +68,9 @@ func Load(configPath string) {
 		Webhook: NewWebhook(r, "gitea", errCallback),
 	}
 	SonarQube = sonarQubeConfig{
-		Url:     r.GetString("sonarqube.url"),
-		Token:   NewToken(r, "sonarqube", errCallback),
-		Webhook: NewWebhook(r, "sonarqube", errCallback),
+		Url:               r.GetString("sonarqube.url"),
+		Token:             NewToken(r, "sonarqube", errCallback),
+		Webhook:           NewWebhook(r, "sonarqube", errCallback),
+		AdditionalMetrics: r.GetStringSlice("sonarqube.additionalMetrics"),
 	}
 }

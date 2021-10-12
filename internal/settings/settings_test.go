@@ -22,6 +22,7 @@ sonarqube:
     value: a09eb5785b25bb2cbacf48808a677a0709f02d8e
   webhook:
     secret: haxxor-sonarqube-secret
+  additionalMetrics: []
 projects:
   - sonarqube:
       key: gitea-sonarqube-pr-bot
@@ -107,6 +108,45 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 	}
 
 	assert.EqualValues(t, expected, SonarQube)
+	assert.EqualValues(t, expected.GetMetricsList(), "bugs,vulnerabilities,code_smells")
+}
+
+func TestLoadSonarQubeStructureWithAdditionalMetrics(t *testing.T) {
+	WriteConfigFile(t, []byte(
+		`gitea:
+  url: https://example.com/gitea
+  token:
+    value: fake-gitea-token
+sonarqube:
+  url: https://example.com/sonarqube
+  token:
+    value: fake-sonarqube-token
+  additionalMetrics: "new_security_hotspots"
+projects:
+  - sonarqube:
+      key: gitea-sonarqube-pr-bot
+    gitea:
+      owner: example-organization
+      name: pr-bot
+`))
+	Load(os.TempDir())
+
+	expected := sonarQubeConfig{
+		Url: "https://example.com/sonarqube",
+		Token: &token{
+			Value: "fake-sonarqube-token",
+		},
+		Webhook: &webhook{
+			Secret: "",
+		},
+		AdditionalMetrics: []string{
+			"new_security_hotspots",
+		},
+	}
+
+	assert.EqualValues(t, expected, SonarQube)
+	assert.EqualValues(t, expected.AdditionalMetrics, []string{"new_security_hotspots"})
+	assert.EqualValues(t, "bugs,vulnerabilities,code_smells,new_security_hotspots", SonarQube.GetMetricsList())
 }
 
 func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
@@ -189,6 +229,7 @@ projects:
 			Secret:     "sonarqube-totally-secret",
 			secretFile: sonarqubeWebhookSecretFile,
 		},
+		AdditionalMetrics: []string{},
 	}
 
 	Load(os.TempDir())
