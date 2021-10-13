@@ -54,8 +54,8 @@ func (w *PullWebhook) Validate() error {
 		return fmt.Errorf("ignore hook for non-configured project '%s/%s'", owner, name)
 	}
 
-	if w.Action != "synchronized" {
-		return fmt.Errorf("ignore hook for action others than synchronized")
+	if w.Action != "synchronized" && w.Action != "opened" {
+		return fmt.Errorf("ignore hook for action others than 'opened' or 'synchronized'")
 	}
 
 	w.Repository = settings.GiteaRepository{

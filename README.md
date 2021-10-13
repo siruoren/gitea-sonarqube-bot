@@ -81,6 +81,7 @@ See [SonarQube docs](https://docs.sonarqube.org/latest/project-administration/we
 - [x] Official image for containerized hosting
 - [x] Helm chart for Kubernetes
 - [ ] Publish Helm chart + docker image
+- [x] Respect `"action": "opened"` PR event for updating status check
 
 ### Possible improvements
 
