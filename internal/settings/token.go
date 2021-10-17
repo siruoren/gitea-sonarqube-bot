@@ -3,8 +3,6 @@ package settings
 import (
 	"fmt"
 	"io/ioutil"
-
-	"github.com/spf13/viper"
 )
 
 type token struct {
@@ -26,10 +24,10 @@ func (t *token) lookupSecret(errCallback func(string)) {
 	t.Value = string(content)
 }
 
-func NewToken(v *viper.Viper, confContainer string, errCallback func(string)) *token {
+func NewToken(extractor func(string) string, confContainer string, errCallback func(string)) *token {
 	t := &token{
-		Value: v.GetString(fmt.Sprintf("%s.token.value", confContainer)),
-		file:  v.GetString(fmt.Sprintf("%s.token.file", confContainer)),
+		Value: extractor(fmt.Sprintf("%s.token.value", confContainer)),
+		file:  extractor(fmt.Sprintf("%s.token.file", confContainer)),
 	}
 
 	t.lookupSecret(errCallback)

@@ -3,8 +3,6 @@ package settings
 import (
 	"fmt"
 	"io/ioutil"
-
-	"github.com/spf13/viper"
 )
 
 type webhook struct {
@@ -26,10 +24,10 @@ func (w *webhook) lookupSecret(errCallback func(string)) {
 	w.Secret = string(content)
 }
 
-func NewWebhook(v *viper.Viper, confContainer string, errCallback func(string)) *webhook {
+func NewWebhook(extractor func(string) string, confContainer string, errCallback func(string)) *webhook {
 	w := &webhook{
-		Secret:     v.GetString(fmt.Sprintf("%s.webhook.secret", confContainer)),
-		secretFile: v.GetString(fmt.Sprintf("%s.webhook.secretFile", confContainer)),
+		Secret:     extractor(fmt.Sprintf("%s.webhook.secret", confContainer)),
+		secretFile: extractor(fmt.Sprintf("%s.webhook.secretFile", confContainer)),
 	}
 
 	w.lookupSecret(errCallback)

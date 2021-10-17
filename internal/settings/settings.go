@@ -64,13 +64,13 @@ func Load(configPath string) {
 
 	Gitea = giteaConfig{
 		Url:     r.GetString("gitea.url"),
-		Token:   NewToken(r, "gitea", errCallback),
-		Webhook: NewWebhook(r, "gitea", errCallback),
+		Token:   NewToken(r.GetString, "gitea", errCallback),
+		Webhook: NewWebhook(r.GetString, "gitea", errCallback),
 	}
 	SonarQube = sonarQubeConfig{
 		Url:               r.GetString("sonarqube.url"),
-		Token:             NewToken(r, "sonarqube", errCallback),
-		Webhook:           NewWebhook(r, "sonarqube", errCallback),
+		Token:             NewToken(r.GetString, "sonarqube", errCallback),
+		Webhook:           NewWebhook(r.GetString, "sonarqube", errCallback),
 		AdditionalMetrics: r.GetStringSlice("sonarqube.additionalMetrics"),
 	}
 }
