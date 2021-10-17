@@ -84,7 +84,7 @@ func withValidRequestData(t *testing.T, mockPreparation func(*HandlerPartialMock
 
 func TestHandleSonarQubeWebhookProjectMapped(t *testing.T) {
 	settings.Projects = []settings.Project{
-		settings.Project{
+		{
 			SonarQube: struct{ Key string }{
 				Key: "pr-bot",
 			},
@@ -99,7 +99,7 @@ func TestHandleSonarQubeWebhookProjectMapped(t *testing.T) {
 
 func TestHandleSonarQubeWebhookProjectNotMapped(t *testing.T) {
 	settings.Projects = []settings.Project{
-		settings.Project{
+		{
 			SonarQube: struct{ Key string }{
 				Key: "another-project",
 			},
@@ -114,7 +114,7 @@ func TestHandleSonarQubeWebhookProjectNotMapped(t *testing.T) {
 
 func TestHandleSonarQubeWebhookInvalidJSONBody(t *testing.T) {
 	settings.Projects = []settings.Project{
-		settings.Project{
+		{
 			SonarQube: struct{ Key string }{
 				Key: "pr-bot",
 			},
@@ -130,7 +130,7 @@ func TestHandleSonarQubeWebhookInvalidJSONBody(t *testing.T) {
 
 func TestHandleSonarQubeWebhookForPullRequest(t *testing.T) {
 	settings.Projects = []settings.Project{
-		settings.Project{
+		{
 			SonarQube: struct{ Key string }{
 				Key: "pr-bot",
 			},
@@ -147,7 +147,7 @@ func TestHandleSonarQubeWebhookForPullRequest(t *testing.T) {
 
 func TestHandleSonarQubeWebhookForBranch(t *testing.T) {
 	settings.Projects = []settings.Project{
-		settings.Project{
+		{
 			SonarQube: struct{ Key string }{
 				Key: "pr-bot",
 			},

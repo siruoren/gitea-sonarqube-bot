@@ -253,7 +253,7 @@ func TestLoadProjectsStructure(t *testing.T) {
 	Load(os.TempDir())
 
 	expectedProjects := []Project{
-		Project{
+		{
 			SonarQube: struct{ Key string }{
 				Key: "gitea-sonarqube-pr-bot",
 			},
