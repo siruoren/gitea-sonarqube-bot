@@ -14,8 +14,6 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
     - [SonarQube](#sonarqube)
     - [Gitea](#gitea)
     - [CI system](#ci-system)
-  - [TODOs](#todos)
-    - [Possible improvements](#possible-improvements)
   - [Contributing](#contributing)
   - [License](#license)
   - [Screenshots](#screenshots)
@@ -27,14 +25,14 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 **Insights**
 
 - Bot activities
-    - extract data from SonarQube
-        - [x] Read payload from hook post to receive project,branch/pr,quality-gate
-        - [x] Load "api/measures/component"
-    - [x] comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
-    - [x] updates status check (either failing/success)
-    - [x] listen on "/sq-bot review" comments
-      - [x] comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
-      - [x] updates status check (either failing/success)
+    - Extract data from SonarQube
+        - Read payload from hook post to receive project,branch/pr,quality-gate
+        - Load "api/measures/component"
+    - Comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
+    - Updates status check (either failing/success)
+    - Listen on "/sq-bot review" comments
+      - Comment PR in Gitea (/repos/{owner}/{repo}/issues/{index}/comments)
+      - Updates status check (either failing/success)
 
 ## Requirements
 
@@ -67,30 +65,6 @@ This would cause the bot to fail to set the commit status in Gitea because the w
 To mitigate that situation, the bot will look inside the `properties` object for the key `sonar.analysis.sqbot`. If available, this 
 key can contain the actual commit hash to use for updating the status in Gitea.  
 See [SonarQube docs](https://docs.sonarqube.org/latest/project-administration/webhooks) for details.
-
-## TODOs
-
-- [ ] Validate configuration on startup
-- [ ] Verify webhook secrets
-- [ ] Only post status-check (Opt-in/out)
-- [ ] Maybe drop `PRBOT_CONFIG_PATH` environment variable in favor of `--config path/to/config.yaml` cli attribute
-- [ ] Configure SonarQube PR branch naming pattern for more flexibility (currently focused on Jenkins with [Gitea Plugin](https://github.com/jenkinsci/gitea-plugin))
-- [ ] Configuration live reloading
-- [ ] _Caching_ of outgoing requests in case the target is not available
-- [ ] Parsable logging for monitoring
-- [x] Official image for containerized hosting
-- [x] Helm chart for Kubernetes
-- [ ] Publish Helm chart + docker image
-- [x] Respect `"action": "opened"` PR event for updating status check
-
-### Possible improvements
-
-- Reuse existing posted comment for updates via SonarQube webhook or `/sq-bot` comments  
-Therefore storing or dynamically retrieving the previous comment id and modify content (/repos/{owner}/{repo}/issues/comments/{id})
-- Add more information to posted comment
-  - Read "api/project_pull_requests" to get current issue counts and current state
-  - Load "api/issues/search" to get detailed information for unresolved issues
-- Maybe directly show issues via review comments
 
 ## Contributing
 
