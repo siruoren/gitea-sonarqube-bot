@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 
 	"gitea-sonarqube-pr-bot/internal/actions"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
@@ -55,12 +54,8 @@ func (w *CommentWebhook) Validate() error {
 		return fmt.Errorf("ignore hook for action others than created")
 	}
 
-	if !strings.HasPrefix(w.Comment.Body, actions.ActionPrefix) {
-		return fmt.Errorf("ignore hook for non-bot action comment")
-	}
-
-	if w.Comment.Body != string(actions.ActionReview) {
-		return fmt.Errorf("ignore hook for unknown bot action")
+	if !actions.IsValidBotComment(w.Comment.Body) {
+		return fmt.Errorf("ignore hook for non-bot action comment or unknown action")
 	}
 
 	w.ConfiguredProject = settings.Projects[pIdx]
