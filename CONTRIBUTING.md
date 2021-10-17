@@ -5,6 +5,7 @@
 - [Contribution Guidelines](#contribution-guidelines)
   - [Table of Contents](#table-of-contents)
   - [Setup development environment](#setup-development-environment)
+  - [Build and Run](#build-and-run)
   - [Testing](#testing)
   - [Release](#release)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -17,22 +18,26 @@ docker build -t gitea-sonarqube-pr-bot/dev -f contrib/Dockerfile contrib
 
 # Start the environment
 docker run --rm -it -p 49182:3000 -v "$(pwd):/projects" gitea-sonarqube-pr-bot/dev
+```
 
+## Build and Run
+
+```bash
 # Build the binary
-go build ./cmd/gitea-sonarqube-bot
-
+make build
 # Start the server
-./gitea-sonarqube-bot
+make run
+
+# or all in once
+make build run
 ```
 
 ## Testing
 
 ```bash
-# generic test execution
-go test ./...
-
-# or with coverage report
-go test -coverprofile cover.out ./...
+make test
+# or
+make coverage
 ```
 
 ## Release

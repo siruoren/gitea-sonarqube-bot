@@ -1,5 +1,6 @@
 /.git/
 /.idea/
+/.vscode/
 /config/
 /vendor/
 /gitea-sonarqube-bot
