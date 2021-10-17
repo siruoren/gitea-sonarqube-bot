@@ -25,7 +25,7 @@ run:
 clean:
 	go clean
 	rm -f ${BINARY_NAME}
-	rm -f cover.out cover.html
+	rm -f cover.out cover.html test-report.out
 
 test:
 ifdef p
@@ -36,6 +36,9 @@ endif
 
 test\#%:
 	go test -mod=vendor -run $(subst .,/,$*) ./...
+
+test-ci:
+	go test -mod=vendor -coverprofile=cover.out -json ./... > test-report.out
 
 coverage:
 	go test -coverprofile=cover.out ./...

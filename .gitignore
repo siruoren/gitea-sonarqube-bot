@@ -1,6 +1,7 @@
 /.git/
 /.idea/
 /.vscode/
+/.scannerwork/
 /config/
 /vendor/
 /gitea-sonarqube-bot
@@ -8,3 +9,4 @@
 /*.log
 /cover.out
 /cover.html
+/test-report.out
