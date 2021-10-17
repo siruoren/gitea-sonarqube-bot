@@ -4,8 +4,8 @@ import "strings"
 
 type sonarQubeConfig struct {
 	Url               string
-	Token             *token
-	Webhook           *webhook
+	Token             *Token
+	Webhook           *Webhook
 	AdditionalMetrics []string
 }
 

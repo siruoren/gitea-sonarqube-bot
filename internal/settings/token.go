@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 )
 
-type token struct {
+type Token struct {
 	Value string
 	file  string
 }
 
-func (t *token) lookupSecret(errCallback func(string)) {
+func (t *Token) lookupSecret(errCallback func(string)) {
 	if t.file == "" {
 		return
 	}
@@ -24,8 +24,8 @@ func (t *token) lookupSecret(errCallback func(string)) {
 	t.Value = string(content)
 }
 
-func NewToken(extractor func(string) string, confContainer string, errCallback func(string)) *token {
-	t := &token{
+func NewToken(extractor func(string) string, confContainer string, errCallback func(string)) *Token {
+	t := &Token{
 		Value: extractor(fmt.Sprintf("%s.token.value", confContainer)),
 		file:  extractor(fmt.Sprintf("%s.token.file", confContainer)),
 	}

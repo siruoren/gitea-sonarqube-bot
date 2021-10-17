@@ -58,10 +58,10 @@ func TestLoadGiteaStructure(t *testing.T) {
 
 	expected := giteaConfig{
 		Url: "https://example.com/gitea",
-		Token: &token{
+		Token: &Token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret: "haxxor-gitea-secret",
 		},
 	}
@@ -77,10 +77,10 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 
 	expected := giteaConfig{
 		Url: "https://example.com/gitea",
-		Token: &token{
+		Token: &Token{
 			Value: "injected-token",
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret: "injected-webhook-secret",
 		},
 	}
@@ -99,10 +99,10 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 
 	expected := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: &token{
+		Token: &Token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret: "haxxor-sonarqube-secret",
 		},
 	}
@@ -133,10 +133,10 @@ projects:
 
 	expected := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: &token{
+		Token: &Token{
 			Value: "fake-sonarqube-token",
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret: "",
 		},
 		AdditionalMetrics: []string{
@@ -157,10 +157,10 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 
 	expected := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: &token{
+		Token: &Token{
 			Value: "injected-token",
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret: "injected-webhook-secret",
 		},
 	}
@@ -209,11 +209,11 @@ projects:
 
 	expectedGitea := giteaConfig{
 		Url: "https://example.com/gitea",
-		Token: &token{
+		Token: &Token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
 			file:  giteaTokenFile,
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret:     "gitea-totally-secret",
 			secretFile: giteaWebhookSecretFile,
 		},
@@ -221,11 +221,11 @@ projects:
 
 	expectedSonarQube := sonarQubeConfig{
 		Url: "https://example.com/sonarqube",
-		Token: &token{
+		Token: &Token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
 			file:  sonarqubeTokenFile,
 		},
-		Webhook: &webhook{
+		Webhook: &Webhook{
 			Secret:     "sonarqube-totally-secret",
 			secretFile: sonarqubeWebhookSecretFile,
 		},

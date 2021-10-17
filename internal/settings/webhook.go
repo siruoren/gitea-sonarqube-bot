@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 )
 
-type webhook struct {
+type Webhook struct {
 	Secret     string
 	secretFile string
 }
 
-func (w *webhook) lookupSecret(errCallback func(string)) {
+func (w *Webhook) lookupSecret(errCallback func(string)) {
 	if w.secretFile == "" {
 		return
 	}
@@ -24,8 +24,8 @@ func (w *webhook) lookupSecret(errCallback func(string)) {
 	w.Secret = string(content)
 }
 
-func NewWebhook(extractor func(string) string, confContainer string, errCallback func(string)) *webhook {
-	w := &webhook{
+func NewWebhook(extractor func(string) string, confContainer string, errCallback func(string)) *Webhook {
+	w := &Webhook{
 		Secret:     extractor(fmt.Sprintf("%s.webhook.secret", confContainer)),
 		secretFile: extractor(fmt.Sprintf("%s.webhook.secretFile", confContainer)),
 	}
