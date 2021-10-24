@@ -42,6 +42,6 @@ EXPOSE 3000
 ENV GIN_MODE "release"
 
 VOLUME ["/home/bot/config/"]
-
+RUN ["chmod", "+x", "/usr/local/bin/docker-entrypoint.sh"]
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD []
