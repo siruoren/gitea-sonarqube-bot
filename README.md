@@ -38,7 +38,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
 
 ## Requirements
 
-This bot is designed to interact with [SonarQube _Developer_ edition](https://www.sonarsource.com/plans-and-pricing/) and above due to its pull request features. It will most likely work with public SonarCloud because it includes that feature for open source projects.
+This bot is designed to perform SonarQube/SonarCloud API requests specific for pull requests. This feature is available in the _Community_ edition via [Sonarqube Community Branch Plugin](https://github.com/mc1arke/sonarqube-community-branch-plugin) or natively in [SonarQube _Developer_ edition](https://www.sonarsource.com/plans-and-pricing/) and above.
 
 ## Bot configuration
 
