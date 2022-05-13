@@ -1,6 +1,7 @@
 # Gitea SonarQube Bot
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gitea-sonarqube-bot&metric=alert_status)](https://sonarcloud.io/dashboard?id=gitea-sonarqube-bot)
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/justusbunsi/gitea-sonarqube-bot?logo=docker)
 
 _Gitea SonarQube Bot_ is a bot that receives messages from both SonarQube and Gitea to help developers 
 being productive. The idea behind this project is the missing ALM integration of Gitea in SonarQube. Unfortunately, 
@@ -12,6 +13,8 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
   - [Workflow](#workflow)
   - [Requirements](#requirements)
   - [Bot configuration](#bot-configuration)
+  - [Installation](#installation)
+    - [Docker](#docker)
   - [Setup](#setup)
     - [SonarQube](#sonarqube)
     - [Gitea](#gitea)
@@ -43,6 +46,17 @@ This bot is designed to perform SonarQube/SonarCloud API requests specific for p
 ## Bot configuration
 
 See [config.example.yaml](config/config.example.yaml) for a full configuration specification and description.
+
+## Installation
+
+### Docker
+
+Create a directory `config` and place your [config.yaml](config/config.example.yaml) inside it. Open a terminal next to this directory
+and execute the following (replace `$TAG` first):
+
+```bash
+docker run --rm -it -p 9000:3000 -v "$(pwd)/config/:/home/bot/config/" justusbunsi/gitea-sonarqube-bot:$TAG
+```
 
 ## Setup
 

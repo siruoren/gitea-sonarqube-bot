@@ -48,6 +48,13 @@ For local purposes
 docker build -t gitea-sonarqube-pr-bot/prod .
 ```
 
+For actual release builds
+
+```bash
+docker build -t justusbunsi/gitea-sonarqube-bot:$TAG .
+docker push justusbunsi/gitea-sonarqube-bot:$TAG
+```
+
 ## Developer Certificate of Origin (DCO)
 
 I consider the act of contributing to the code by submitting a Pull Request as the "Sign off" or agreement to the 
