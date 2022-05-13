@@ -3,4 +3,17 @@ name: gitea-sonarqube-bot
 description: A Helm Chart for running a bot to communicate between both Gitea and SonarQube
 type: application
 version: 0.1.0
-appVersion: "0.1.0"
+appVersion: "v0.1.0"
+keywords:
+  - code review
+  - git
+  - gitea
+  - pull request
+  - sonarqube
+  - sonarcloud
+sources:
+  - https://codeberg.org/justusbunsi/gitea-sonarqube-bot/
+  - https://hub.docker.com/r/justusbunsi/gitea-sonarqube-bot/
+maintainers:
+  - name: Steven Kriegler
+    email: sk.bunsenbrenner@gmail.com
