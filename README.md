@@ -1,7 +1,7 @@
 # Gitea SonarQube Bot
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gitea-sonarqube-bot&metric=alert_status)](https://sonarcloud.io/dashboard?id=gitea-sonarqube-bot)
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/justusbunsi/gitea-sonarqube-bot?logo=docker)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/justusbunsi/gitea-sonarqube-bot?logo=docker)](https://hub.docker.com/r/justusbunsi/gitea-sonarqube-bot)
 
 _Gitea SonarQube Bot_ is a bot that receives messages from both SonarQube and Gitea to help developers 
 being productive. The idea behind this project is the missing ALM integration of Gitea in SonarQube. Unfortunately, 
