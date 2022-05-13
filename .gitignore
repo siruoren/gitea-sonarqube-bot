@@ -4,6 +4,8 @@
 /.scannerwork/
 /config/
 /vendor/
+/node_modules/
+/helm-releases/
 /gitea-sonarqube-bot
 /coverage.html
 /*.log

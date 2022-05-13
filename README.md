@@ -15,6 +15,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
   - [Bot configuration](#bot-configuration)
   - [Installation](#installation)
     - [Docker](#docker)
+    - [Helm Chart](#helm-chart)
   - [Setup](#setup)
     - [SonarQube](#sonarqube)
     - [Gitea](#gitea)
@@ -57,6 +58,10 @@ and execute the following (replace `$TAG` first):
 ```bash
 docker run --rm -it -p 9000:3000 -v "$(pwd)/config/:/home/bot/config/" justusbunsi/gitea-sonarqube-bot:$TAG
 ```
+
+### Helm Chart
+
+See [Helm Chart README](helm/README.md) for detailed instructions.
 
 ## Setup
 

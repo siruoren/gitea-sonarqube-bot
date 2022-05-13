@@ -1,0 +1,23 @@
+{
+  "name": "gitea-sonarqube-pr-bot",
+  "description": "Integrate SonarQube analysis into Gitea Pull Requests",
+  "author": "Steven Kriegler <sk.bunsenbrenner@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://codeberg.org/justusbunsi/gitea-sonarqube-bot.git"
+  },
+  "keywords": [
+    "gitea",
+    "sonarqube",
+    "pull request",
+    "bot"
+  ],
+  "scripts": {
+    "helm-params": "cd node_modules/readme-generator-for-helm && node bin/index.js --config ./../../helm/readme-generator-config.json --readme ./../../helm/README.md --values ./../../helm/values.yaml"
+  },
+  "dependencies": {
+    "readme-generator-for-helm": "^1.3.1"
+  }
+}

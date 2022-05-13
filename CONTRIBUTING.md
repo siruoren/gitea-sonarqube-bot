@@ -7,6 +7,7 @@
   - [Setup development environment](#setup-development-environment)
   - [Build and Run](#build-and-run)
   - [Testing](#testing)
+  - [Helm Chart](#helm-chart)
   - [Release](#release)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
 
@@ -40,6 +41,15 @@ make test
 make coverage
 ```
 
+## Helm Chart
+
+The [Parameters section](helm/README.md#parameters) is auto-generated using [readme-generator-for-helm](https://github.com/bitnami-labs/readme-generator-for-helm).
+When modifying anything in the `helm` directory, remember to update the documentation by running
+
+```bash
+make helm-params
+```
+
 ## Release
 
 For local purposes
@@ -48,12 +58,20 @@ For local purposes
 docker build -t gitea-sonarqube-pr-bot/prod .
 ```
 
-For actual release builds
+**Docker image**
 
 ```bash
 docker build -t justusbunsi/gitea-sonarqube-bot:$TAG .
 docker push justusbunsi/gitea-sonarqube-bot:$TAG
 ```
+
+**Helm Chart**
+
+```bash
+make helm-pack
+```
+
+Use the two files in `helm-releases` and push them to the `charts` branch.
 
 ## Developer Certificate of Origin (DCO)
 

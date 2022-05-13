@@ -11,6 +11,8 @@ help:
 	@echo " - test p=./path/to/package         Run test suite for specific package"
 	@echo " - test\#SpecificTestName           Run a specific"
 	@echo " - coverage    	                   Run full test suite and generates coverage report as HTML file"
+	@echo " - helm-params                      Auto-generates 'Parameters' section of 'helm/README.md' based on comments in values.yaml"
+	@echo " - helm-pack                        Prepares Helm Chart release artifacts for pushing to 'charts' branch"
 	@echo " - dep                              Dependency maintenance (tidy, vendor, verify)"
 	@echo " - vet                              Examine Go source code and reports suspicious parts"
 	@echo " - fmt                              Format the Go code"
@@ -43,6 +45,16 @@ test-ci:
 coverage:
 	go test -coverprofile=cover.out ./...
 	go tool cover -html=cover.out -o cover.html
+
+helm-params:
+	npm install
+	npm run helm-params
+
+helm-pack:
+	rm -rf ./helm-releases/
+	helm package ./helm/ -d ./helm-releases/
+	curl -L -o ./helm-releases/index.yaml https://codeberg.org/justusbunsi/gitea-sonarqube-bot/raw/branch/charts/index.yaml
+	helm repo index ./helm-releases/ --url https://codeberg.org/justusbunsi/gitea-sonarqube-bot/raw/branch/charts/ --merge ./helm-releases/index.yaml
 
 dep:
 	go mod tidy

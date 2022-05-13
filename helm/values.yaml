@@ -1,25 +1,68 @@
-# Default values for helm.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# @section Common parameters
 
+# @param replicaCount Number of replicas for the bot
 replicaCount: 1
 
+# ref: https://hub.docker.com/r/justusbunsi/gitea-sonarqube-bot/tags/
+# @param image.repository Image repository
+# @param image.pullPolicy Image pull policy
+# @param image.tag Image tag (Overrides the image tag whose default is the chart `appVersion`)
 image:
   repository: justusbunsi/gitea-sonarqube-bot
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# @param imagePullSecrets Specify docker-registry secret names as an array
+imagePullSecrets: []
+
+# @param nameOverride String to partially override common.names.fullname template (will maintain the release name)
+nameOverride: ""
+
+# @param fullnameOverride String to fully override common.names.fullname template
+fullnameOverride: ""
+
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# @param resources.limits The resources limits for the container
+# @param resources.requests The requested resources for the container
+resources:
+  limits: {}
+    # cpu: 100m
+    # memory: 128Mi
+  requests: {}
+    # cpu: 100m
+    # memory: 128Mi
+
+# @param nodeSelector Node labels for pod assignment. Evaluated as a template.
+# ref: https://kubernetes.io/docs/user-guide/node-selection/
+nodeSelector: {}
+
+# @param tolerations Tolerations for pod assignment. Evaluated as a template.
+# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
+# @param affinity Affinity for pod assignment. Evaluated as a template.
+# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+# @param podAnnotations Pod annotations.
+podAnnotations: {}
+
+# @section App parameters
+
 app:
-  # This object represents the config.yaml provided to the application
+  # This object represents the [config.yaml](https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/config/config.example.yaml) provided to the application.
   configuration:
     # Gitea related configuration. Necessary for adding/updating comments on repository pull requests
     gitea:
-      # Endpoint of your Gitea instance. Must be expandable by '/api/v1' to form the API base path as shown in Swagger UI.
+      # @param app.configuration.gitea.url Endpoint of your Gitea instance. Must be expandable by '/api/v1' to form the API base path as shown in Swagger UI.
       url: ""
 
       # Created access token for the user that shall be used as bot account.
       # User needs "Read project" permissions with access to "Pull Requests"
+      # @param app.configuration.gitea.token.value Gitea token as plain text. Can be replaced with `file` key containing path to file.
       token:
         value: ""
         # # or path to file containing the plain text secret
@@ -29,6 +72,7 @@ app:
       # request will be ignored.
       # The bot looks for `X-Gitea-Signature` header containing the sha256 hmac hash of the plain text secret. If the header
       # exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be validated.
+      # @skip app.configuration.gitea.webhook
       webhook:
         secret: ""
         # # or path to file containing the plain text secret
@@ -36,11 +80,12 @@ app:
 
     # SonarQube related configuration. Necessary for requesting data from the API and processing the webhook.
     sonarqube:
-      # Endpoint of your SonarQube instance. Must be expandable by '/api' to form the API base path.
+      # @param app.configuration.sonarqube.url Endpoint of your SonarQube instance. Must be expandable by '/api' to form the API base path.
       url: ""
 
       # Created access token for the user that shall be used as bot account.
       # User needs "Browse on project" permissions
+      # @param app.configuration.sonarqube.token.value SonarQube token as plain text. Can be replaced with `file` key containing path to file.
       token:
         value: ""
         # # or path to file containing the plain text secret
@@ -51,6 +96,7 @@ app:
       # The bot looks for `X-Sonar-Webhook-HMAC-SHA256` header containing the sha256 hmac hash of the plain text secret.
       # If the header exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be
       # validated.
+      # @skip app.configuration.sonarqube.webhook
       webhook:
         secret: ""
         # # or path to file containing the plain text secret
@@ -58,12 +104,15 @@ app:
       
       # Some useful metrics depend on the edition in use. There are various ones like code_smells, vulnerabilities, bugs, etc.
       # By default the bot will extract "bugs,vulnerabilities,code_smells"
-      # Setting this option you can extend that default list by your own metrics.
+      # @param app.configuration.sonarqube.additionalMetrics Setting this option you can extend that default list by your own metrics.
       additionalMetrics: []
       # - "new_security_hotspots"
 
     # List of project mappings to take care of. Webhooks for other projects will be ignored.
     # At least one must be configured. Otherwise all webhooks (no matter which source) because the bot cannot map on its own.
+    # @param app.configuration.projects[0].sonarqube.key Project key inside SonarQube
+    # @param app.configuration.projects[0].gitea.owner Repository owner inside Gitea
+    # @param app.configuration.projects[0].gitea.name Repository name inside Gitea
     projects:
       - sonarqube:
           key: ""
@@ -73,7 +122,7 @@ app:
           owner: ""
           name: ""
 
-# If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly
+# @param volumes If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly
 volumes: []
 # - name: gitea-connection
 #   secret:
@@ -82,7 +131,7 @@ volumes: []
 #   secret:
 #     secretName: sonarqube-secret-with-token-and-maybe-webhook-secret
 
-# If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly
+# @param volumeMounts If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly
 volumeMounts: []
 # - name: gitea-connection
 #   readOnly: true
@@ -91,24 +140,25 @@ volumeMounts: []
 #   readOnly: true
 #   mountPath: "/bot/secrets/sonarqube/"
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+# @section Security parameters
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # @param serviceAccount.create Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
+  # @param serviceAccount.annotations Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # @param serviceAccount.name The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
-
+# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# @param podSecurityContext.fsGroup Group ID for the container
 podSecurityContext:
   fsGroup: 1000
 
+# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+# @param securityContext.readOnlyRootFilesystem Mounts the container's root filesystem as read-only
+# @param securityContext.runAsNonRoot Avoid running as root user
+# @param securityContext.runAsUser User ID for the container
 securityContext:
   # capabilities:
   #   drop:
@@ -117,40 +167,42 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
+# @section Traffic exposure parameters
+
+# @param service.type Service type
+# @param service.port Service port
 service:
   type: ClusterIP
   port: 80
 
+# ref: https://kubernetes.io/docs/user-guide/ingress/
 ingress:
+
+  # @param ingress.enabled Enable ingress controller resource
   enabled: false
+
+  # @param ingress.className IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster.
+  # ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
   className: ""
+
+  # @param ingress.annotations Additional annotations for the Ingress resource.
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+
+  # @param ingress.hosts[0].host Host for the ingress resource
+  # @param ingress.hosts[0].paths[0].path The path to the bot endpoint
+  # @param ingress.hosts[0].paths[0].pathType Ingress path type
   hosts:
     - host: sqbot.example.com
       paths:
         - path: /
           pathType: ImplementationSpecific
+
+  # @param ingress.tls The tls configuration for additional hostnames to be covered with configured ingress.
+  # see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
+  #  - hosts:
   #      - sqbot.example.com
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  #    secretName: chart-example-tls
