@@ -14,6 +14,7 @@ help:
 	@echo " - helm-params                      Auto-generates 'Parameters' section of 'helm/README.md' based on comments in values.yaml"
 	@echo " - helm-pack                        Prepares Helm Chart release artifacts for pushing to 'charts' branch"
 	@echo " - dep                              Dependency maintenance (tidy, vendor, verify)"
+	@echo " - dep-up                           Dependency upgrade (including auto-sync + auto-test)"
 	@echo " - vet                              Examine Go source code and reports suspicious parts"
 	@echo " - fmt                              Format the Go code"
 	@echo " - help    	                       Print this help"
@@ -60,6 +61,11 @@ dep:
 	go mod tidy
 	go mod vendor
 	go mod verify
+
+dep-bump:
+	go get -t -u ./...
+
+dep-up: dep-bump dep test
 
 vet:
 	go vet ./...
