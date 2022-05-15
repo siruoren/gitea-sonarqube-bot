@@ -68,7 +68,12 @@ func addGiteaEndpoint(r *gin.Engine) {
 func Serve(c *cli.Context) error {
 	fmt.Println("Hi! I'm the Gitea-SonarQube-PR bot. At your service.")
 
-	r := gin.Default()
+	r := gin.New()
+
+	r.Use(gin.Recovery())
+	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+		SkipPaths: []string{"/ping", "/favicon.ico"},
+	}))
 
 	addPingApi(r)
 	addSonarQubeEndpoint(r)
