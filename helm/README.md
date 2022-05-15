@@ -77,3 +77,6 @@ for full configuration options.
 | `ingress.tls`                        | The tls configuration for additional hostnames to be covered with configured ingress. | `[]`                     |
 
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
