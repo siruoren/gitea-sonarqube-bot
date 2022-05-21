@@ -52,7 +52,13 @@ func (h *SQSdkMock) GetPullRequestUrl(project string, index int64) string {
 }
 
 func (h *SQSdkMock) GetPullRequest(project string, index int64) (*sqSdk.PullRequest, error) {
-	return nil, nil
+	return &sqSdk.PullRequest{
+		Status: struct {
+			QualityGateStatus string "json:\"qualityGateStatus\""
+		}{
+			QualityGateStatus: "OK",
+		},
+	}, nil
 }
 
 func (h *SQSdkMock) ComposeGiteaComment(data *sqSdk.CommentComposeData) (string, error) {
