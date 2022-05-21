@@ -12,6 +12,11 @@ import (
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/gitea"
 )
 
+type GiteaWebhookHandlerInferface interface {
+	HandleSynchronize(rw http.ResponseWriter, r *http.Request)
+	HandleComment(rw http.ResponseWriter, r *http.Request)
+}
+
 type GiteaWebhookHandler struct {
 	giteaSdk giteaSdk.GiteaSdkInterface
 	sqSdk    sqSdk.SonarQubeSdkInterface
@@ -88,7 +93,7 @@ func (h *GiteaWebhookHandler) HandleComment(rw http.ResponseWriter, r *http.Requ
 	w.ProcessData(h.giteaSdk, h.sqSdk)
 }
 
-func NewGiteaWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) *GiteaWebhookHandler {
+func NewGiteaWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) GiteaWebhookHandlerInferface {
 	return &GiteaWebhookHandler{
 		giteaSdk: g,
 		sqSdk:    sq,

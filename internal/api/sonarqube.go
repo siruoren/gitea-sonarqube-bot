@@ -14,10 +14,13 @@ import (
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
 )
 
+type SonarQubeWebhookHandlerInferface interface {
+	Handle(rw http.ResponseWriter, r *http.Request)
+}
+
 type SonarQubeWebhookHandler struct {
-	fetchDetails func(w *webhook.Webhook)
-	giteaSdk     giteaSdk.GiteaSdkInterface
-	sqSdk        sqSdk.SonarQubeSdkInterface
+	giteaSdk giteaSdk.GiteaSdkInterface
+	sqSdk    sqSdk.SonarQubeSdkInterface
 }
 
 func (*SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string) (bool, int) {
@@ -31,13 +34,6 @@ func (*SonarQubeWebhookHandler) inProjectsMapping(p []settings.Project, n string
 }
 
 func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.GiteaRepository) {
-	if strings.ToLower(w.Branch.Type) != "pull_request" {
-		log.Println("Ignore Hook for non-PR")
-		return
-	}
-
-	h.fetchDetails(w)
-
 	status := giteaSdk.StatusOK
 	if w.QualityGate.Status != "OK" {
 		status = giteaSdk.StatusFailure
@@ -96,19 +92,21 @@ func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request
 
 	// Send response to SonarQube at this point to ensure being within 10 seconds limit of webhook response timeout
 	rw.WriteHeader(http.StatusOK)
+
+	if strings.ToLower(w.Branch.Type) != "pull_request" {
+		io.WriteString(rw, `{"message": "Ignore Hook for non-PR analysis."}`)
+		log.Println("Ignore Hook for non-PR analysis")
+		return
+	}
+
 	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
 
 	h.processData(w, settings.Projects[pIdx].Gitea)
 }
 
-func fetchDetails(w *webhook.Webhook) {
-	log.Printf("This method will load additional data from SonarQube based on PR %d", w.PRIndex)
-}
-
-func NewSonarQubeWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) *SonarQubeWebhookHandler {
+func NewSonarQubeWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) SonarQubeWebhookHandlerInferface {
 	return &SonarQubeWebhookHandler{
-		fetchDetails: fetchDetails,
-		giteaSdk:     g,
-		sqSdk:        sq,
+		giteaSdk: g,
+		sqSdk:    sq,
 	}
 }

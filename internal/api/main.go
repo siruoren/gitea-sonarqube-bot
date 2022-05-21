@@ -1,32 +1,38 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
-
-	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
 )
-
-func addPingApi(r *gin.Engine) {
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-}
 
 type validSonarQubeEndpointHeader struct {
 	SonarQubeProject string `header:"X-SonarQube-Project" binding:"required"`
 }
 
-func addSonarQubeEndpoint(r *gin.Engine) {
-	webhookHandler := NewSonarQubeWebhookHandler(giteaSdk.New(), sqSdk.New())
-	r.POST("/hooks/sonarqube", func(c *gin.Context) {
+type validGiteaEndpointHeader struct {
+	GiteaEvent string `header:"X-Gitea-Event" binding:"required"`
+}
+
+type ApiServer struct {
+	Engine                  *gin.Engine
+	sonarQubeWebhookHandler SonarQubeWebhookHandlerInferface
+	giteaWebhookHandler     GiteaWebhookHandlerInferface
+}
+
+func (s *ApiServer) setup() {
+	s.Engine.Use(gin.Recovery())
+	s.Engine.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+		SkipPaths: []string{"/ping", "/favicon.ico"},
+	}))
+
+	s.Engine.GET("/favicon.ico", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	}).GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	}).POST("/hooks/sonarqube", func(c *gin.Context) {
 		h := validSonarQubeEndpointHeader{}
 
 		if err := c.ShouldBindHeader(&h); err != nil {
@@ -34,17 +40,8 @@ func addSonarQubeEndpoint(r *gin.Engine) {
 			return
 		}
 
-		webhookHandler.Handle(c.Writer, c.Request)
-	})
-}
-
-type validGiteaEndpointHeader struct {
-	GiteaEvent string `header:"X-Gitea-Event" binding:"required"`
-}
-
-func addGiteaEndpoint(r *gin.Engine) {
-	webhookHandler := NewGiteaWebhookHandler(giteaSdk.New(), sqSdk.New())
-	r.POST("/hooks/gitea", func(c *gin.Context) {
+		s.sonarQubeWebhookHandler.Handle(c.Writer, c.Request)
+	}).POST("/hooks/gitea", func(c *gin.Context) {
 		h := validGiteaEndpointHeader{}
 
 		if err := c.ShouldBindHeader(&h); err != nil {
@@ -54,9 +51,9 @@ func addGiteaEndpoint(r *gin.Engine) {
 
 		switch h.GiteaEvent {
 		case "pull_request":
-			webhookHandler.HandleSynchronize(c.Writer, c.Request)
+			s.giteaWebhookHandler.HandleSynchronize(c.Writer, c.Request)
 		case "issue_comment":
-			webhookHandler.HandleComment(c.Writer, c.Request)
+			s.giteaWebhookHandler.HandleComment(c.Writer, c.Request)
 		default:
 			c.JSON(http.StatusOK, gin.H{
 				"message": "ignore unknown event",
@@ -65,23 +62,14 @@ func addGiteaEndpoint(r *gin.Engine) {
 	})
 }
 
-func Serve(c *cli.Context) error {
-	fmt.Println("Hi! I'm the Gitea-SonarQube-PR bot. At your service.")
+func New(giteaHandler GiteaWebhookHandlerInferface, sonarQubeHandler SonarQubeWebhookHandlerInferface) *ApiServer {
+	s := &ApiServer{
+		Engine:                  gin.New(),
+		giteaWebhookHandler:     giteaHandler,
+		sonarQubeWebhookHandler: sonarQubeHandler,
+	}
 
-	r := gin.New()
+	s.setup()
 
-	r.Use(gin.Recovery())
-	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
-		SkipPaths: []string{"/ping", "/favicon.ico"},
-	}))
-
-	addPingApi(r)
-	addSonarQubeEndpoint(r)
-	addGiteaEndpoint(r)
-
-	r.GET("/favicon.ico", func(c *gin.Context) {
-		c.Status(http.StatusNoContent)
-	})
-
-	return endless.ListenAndServe(":3000", r)
+	return s
 }
