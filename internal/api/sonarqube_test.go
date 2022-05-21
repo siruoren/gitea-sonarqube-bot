@@ -27,6 +27,11 @@ func withValidSonarQubeRequestData(t *testing.T, jsonBody []byte) (*http.Request
 }
 
 func TestHandleSonarQubeWebhookProjectMapped(t *testing.T) {
+	settings.SonarQube = settings.SonarQubeConfig{
+		Webhook: &settings.Webhook{
+			Secret: "",
+		},
+	}
 	settings.Projects = []settings.Project{
 		{
 			SonarQube: struct{ Key string }{
@@ -72,7 +77,33 @@ func TestHandleSonarQubeWebhookInvalidJSONBody(t *testing.T) {
 	assert.Equal(t, `{"message": "Error parsing POST body."}`, rr.Body.String())
 }
 
+func TestHandleSonarQubeWebhookInvalidWebhookSignature(t *testing.T) {
+	settings.SonarQube = settings.SonarQubeConfig{
+		Webhook: &settings.Webhook{
+			Secret: "sonarqube-test-webhook-secret",
+		},
+	}
+	settings.Projects = []settings.Project{
+		{
+			SonarQube: struct{ Key string }{
+				Key: "pr-bot",
+			},
+		},
+	}
+	req, rr, handler := withValidSonarQubeRequestData(t, []byte(`{ "serverUrl": "https://example.com/sonarqube", "taskId": "AXouyxDpizdp4B1K", "status": "SUCCESS", "analysedAt": "2021-05-21T12:12:07+0000", "revision": "f84442009c09b1adc278b6aa80a3853419f54007", "changedAt": "2021-05-21T12:12:07+0000", "project": { "key": "pr-bot", "name": "PR Bot", "url": "https://example.com/sonarqube/dashboard?id=pr-bot" }, "branch": { "name": "PR-1337", "type": "PULL_REQUEST", "isMain": false, "url": "https://example.com/sonarqube/dashboard?id=pr-bot&pullRequest=PR-1337" }, "qualityGate": { "name": "PR Bot", "status": "OK", "conditions": [ { "metric": "new_reliability_rating", "operator": "GREATER_THAN", "value": "1", "status": "OK", "errorThreshold": "1" }, { "metric": "new_security_rating", "operator": "GREATER_THAN", "value": "1", "status": "OK", "errorThreshold": "1" }, { "metric": "new_maintainability_rating", "operator": "GREATER_THAN", "value": "1", "status": "OK", "errorThreshold": "1" }, { "metric": "new_security_hotspots_reviewed", "operator": "LESS_THAN", "status": "NO_VALUE", "errorThreshold": "100" } ] }, "properties": {} }`))
+	req.Header.Set("X-Sonar-Webhook-HMAC-SHA256", "647f2395d30b1b7efcb58d9338be5b69c2addb54faf6bde6314a57ea28f45467")
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusPreconditionFailed, rr.Code)
+	assert.Equal(t, `{"message": "Webhook validation failed. Request rejected."}`, rr.Body.String())
+}
+
 func TestHandleSonarQubeWebhookForPullRequest(t *testing.T) {
+	settings.SonarQube = settings.SonarQubeConfig{
+		Webhook: &settings.Webhook{
+			Secret: "",
+		},
+	}
 	settings.Projects = []settings.Project{
 		{
 			SonarQube: struct{ Key string }{
@@ -89,6 +120,11 @@ func TestHandleSonarQubeWebhookForPullRequest(t *testing.T) {
 }
 
 func TestHandleSonarQubeWebhookForBranch(t *testing.T) {
+	settings.SonarQube = settings.SonarQubeConfig{
+		Webhook: &settings.Webhook{
+			Secret: "",
+		},
+	}
 	settings.Projects = []settings.Project{
 		{
 			SonarQube: struct{ Key string }{

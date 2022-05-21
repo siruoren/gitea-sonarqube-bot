@@ -83,6 +83,14 @@ func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
+	ok, err := isValidWebhook(raw, settings.SonarQube.Webhook.Secret, r.Header.Get("X-Sonar-Webhook-HMAC-SHA256"), "SonarQube")
+	if !ok {
+		log.Print(err.Error())
+		rw.WriteHeader(http.StatusPreconditionFailed)
+		io.WriteString(rw, `{"message": "Webhook validation failed. Request rejected."}`)
+		return
+	}
+
 	w, ok := webhook.New(raw)
 	if !ok {
 		rw.WriteHeader(http.StatusUnprocessableEntity)

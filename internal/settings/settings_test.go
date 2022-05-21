@@ -56,7 +56,7 @@ func TestLoadGiteaStructure(t *testing.T) {
 	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
-	expected := giteaConfig{
+	expected := GiteaConfig{
 		Url: "https://example.com/gitea",
 		Token: &Token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
@@ -75,7 +75,7 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
-	expected := giteaConfig{
+	expected := GiteaConfig{
 		Url: "https://example.com/gitea",
 		Token: &Token{
 			Value: "injected-token",
@@ -97,7 +97,7 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
-	expected := sonarQubeConfig{
+	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
 		Token: &Token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",
@@ -131,7 +131,7 @@ projects:
 `))
 	Load(os.TempDir())
 
-	expected := sonarQubeConfig{
+	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
 		Token: &Token{
 			Value: "fake-sonarqube-token",
@@ -155,7 +155,7 @@ func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 	WriteConfigFile(t, defaultConfig)
 	Load(os.TempDir())
 
-	expected := sonarQubeConfig{
+	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
 		Token: &Token{
 			Value: "injected-token",
@@ -207,7 +207,7 @@ projects:
 	os.Setenv("PRBOT_SONARQUBE_WEBHOOK_SECRETFILE", sonarqubeWebhookSecretFile)
 	os.Setenv("PRBOT_SONARQUBE_TOKEN_FILE", sonarqubeTokenFile)
 
-	expectedGitea := giteaConfig{
+	expectedGitea := GiteaConfig{
 		Url: "https://example.com/gitea",
 		Token: &Token{
 			Value: "d0fcdeb5eaa99c506831f9eb4e63fc7cc484a565",
@@ -219,7 +219,7 @@ projects:
 		},
 	}
 
-	expectedSonarQube := sonarQubeConfig{
+	expectedSonarQube := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
 		Token: &Token{
 			Value: "a09eb5785b25bb2cbacf48808a677a0709f02d8e",

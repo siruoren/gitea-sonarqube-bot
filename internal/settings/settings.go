@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	Gitea     giteaConfig
-	SonarQube sonarQubeConfig
+	Gitea     GiteaConfig
+	SonarQube SonarQubeConfig
 	Projects  []Project
 )
 
@@ -62,12 +62,12 @@ func Load(configPath string) {
 
 	errCallback := func(msg string) { panic(msg) }
 
-	Gitea = giteaConfig{
+	Gitea = GiteaConfig{
 		Url:     r.GetString("gitea.url"),
 		Token:   NewToken(r.GetString, "gitea", errCallback),
 		Webhook: NewWebhook(r.GetString, "gitea", errCallback),
 	}
-	SonarQube = sonarQubeConfig{
+	SonarQube = SonarQubeConfig{
 		Url:               r.GetString("sonarqube.url"),
 		Token:             NewToken(r.GetString, "sonarqube", errCallback),
 		Webhook:           NewWebhook(r.GetString, "sonarqube", errCallback),

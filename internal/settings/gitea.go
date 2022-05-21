@@ -5,7 +5,7 @@ type GiteaRepository struct {
 	Name  string
 }
 
-type giteaConfig struct {
+type GiteaConfig struct {
 	Url     string
 	Token   *Token
 	Webhook *Webhook

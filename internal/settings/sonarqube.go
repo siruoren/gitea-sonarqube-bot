@@ -2,14 +2,14 @@ package settings
 
 import "strings"
 
-type sonarQubeConfig struct {
+type SonarQubeConfig struct {
 	Url               string
 	Token             *Token
 	Webhook           *Webhook
 	AdditionalMetrics []string
 }
 
-func (c *sonarQubeConfig) GetMetricsList() string {
+func (c *SonarQubeConfig) GetMetricsList() string {
 	metrics := []string{
 		"bugs",
 		"vulnerabilities",

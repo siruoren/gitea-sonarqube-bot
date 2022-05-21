@@ -9,6 +9,7 @@ import (
 
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
+	"gitea-sonarqube-pr-bot/internal/settings"
 	webhook "gitea-sonarqube-pr-bot/internal/webhooks/gitea"
 )
 
@@ -47,6 +48,14 @@ func (h *GiteaWebhookHandler) HandleSynchronize(rw http.ResponseWriter, r *http.
 		return
 	}
 
+	ok, err := isValidWebhook(raw, settings.Gitea.Webhook.Secret, r.Header.Get("X-Gitea-Signature"), "Gitea")
+	if !ok {
+		log.Print(err.Error())
+		rw.WriteHeader(http.StatusPreconditionFailed)
+		io.WriteString(rw, fmt.Sprint(`{"message": "Webhook validation failed. Request rejected."}`))
+		return
+	}
+
 	w, ok := webhook.NewPullWebhook(raw)
 	if !ok {
 		rw.WriteHeader(http.StatusUnprocessableEntity)
@@ -71,6 +80,14 @@ func (h *GiteaWebhookHandler) HandleComment(rw http.ResponseWriter, r *http.Requ
 
 	raw, err := h.parseBody(rw, r)
 	if err != nil {
+		return
+	}
+
+	ok, err := isValidWebhook(raw, settings.Gitea.Webhook.Secret, r.Header.Get("X-Gitea-Signature"), "Gitea")
+	if !ok {
+		log.Print(err.Error())
+		rw.WriteHeader(http.StatusPreconditionFailed)
+		io.WriteString(rw, `{"message": "Webhook validation failed. Request rejected."}`)
 		return
 	}
 
