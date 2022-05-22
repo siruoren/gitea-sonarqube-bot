@@ -22,6 +22,7 @@ Luckily, both endpoints have a proper REST API to communicate with each others.
     - [SonarQube](#sonarqube)
     - [Gitea](#gitea)
     - [CI system](#ci-system)
+  - [Changelog](#changelog)
   - [Contributing](#contributing)
   - [License](#license)
   - [Screenshots](#screenshots)
@@ -101,6 +102,10 @@ This would cause the bot to fail to set the commit status in Gitea because the w
 To mitigate that situation, the bot will look inside the `properties` object for the key `sonar.analysis.sqbot`. If available, this 
 key can contain the actual commit hash to use for updating the status in Gitea.  
 See [SonarQube docs](https://docs.sonarqube.org/latest/project-administration/webhooks) for details.
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for a complete list of changes.
 
 ## Contributing
 

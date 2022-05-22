@@ -26,6 +26,10 @@ You have to modify the `app.configuration` values. Otherwise, the bot won't star
 to your Gitea instance. See [config.example.yaml](https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/config/config.example.yaml)
 for full configuration options.
 
+## Changelog
+
+You can find a full changelog in the [main repository](https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/CHANGELOG.md) of this project.
+
 ## Parameters
 
 ### Common parameters
