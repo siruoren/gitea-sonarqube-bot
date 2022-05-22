@@ -61,6 +61,19 @@ and execute the following (replace `$TAG` first):
 docker run --rm -it -p 9000:3000 -v "$(pwd)/config/:/home/bot/config/" justusbunsi/gitea-sonarqube-bot:$TAG
 ```
 
+**Starting with v0.2.0**
+
+By default, the bot expects its configuration file under `./config/config.yaml` next to the bot executable. Inside the Docker image the
+corresponding full path is `/home/bot/config/config.yaml`. If you prefer using a different location or even a different filename, you can
+also define the environment variable `GITEA_SQ_BOT_CONFIG_PATH` that allows for changing that full path.
+
+Imagine having a `./config/sqbot.config.yml` on your host that you want to populate inside `/mnt/`, the correct command to run a Docker
+container would be:
+
+```bash
+docker run --rm -it -p 9000:3000 -e "GITEA_SQ_BOT_CONFIG_PATH=/mnt/sqbot.config.yml" -v "$(pwd)/config/:/mnt/" justusbunsi/gitea-sonarqube-bot:$TAG
+```
+
 ### Helm Chart
 
 See [Helm Chart README](helm/README.md) for detailed instructions.

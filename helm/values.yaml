@@ -53,6 +53,10 @@ podAnnotations: {}
 # @section App parameters
 
 app:
+  # @param app.configLocationOverride Override the default location of the configuration file (`/home/bot/config/config.yaml`). **Available since Chart version `0.2.0`. Requires at least image tag `v0.2.0`**. (See values file for details)
+  # Setting this will also change the mount point for `.Values.app.configuration` to the directory part of the override value.
+  configLocationOverride: ""
+
   # This object represents the [config.yaml](https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/config/config.example.yaml) provided to the application.
   configuration:
     # Gitea related configuration. Necessary for adding/updating comments on repository pull requests

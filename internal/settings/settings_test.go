@@ -31,7 +31,7 @@ projects:
       name: pr-bot
 `)
 
-func WriteConfigFile(t *testing.T, content []byte) {
+func WriteConfigFile(t *testing.T, content []byte) string {
 	dir := os.TempDir()
 	config := path.Join(dir, "config.yaml")
 
@@ -40,21 +40,23 @@ func WriteConfigFile(t *testing.T, content []byte) {
 	})
 
 	_ = ioutil.WriteFile(config, content, 0444)
+
+	return config
 }
 
 func TestLoadWithMissingFile(t *testing.T) {
-	assert.Panics(t, func() { Load(os.TempDir()) }, "No panic while reading missing file")
+	assert.Panics(t, func() { Load(path.Join(os.TempDir(), "config.yaml")) }, "No panic while reading missing file")
 }
 
 func TestLoadWithExistingFile(t *testing.T) {
-	WriteConfigFile(t, defaultConfig)
+	c := WriteConfigFile(t, defaultConfig)
 
-	assert.NotPanics(t, func() { Load(os.TempDir()) }, "Unexpected panic while reading existing file")
+	assert.NotPanics(t, func() { Load(c) }, "Unexpected panic while reading existing file")
 }
 
 func TestLoadGiteaStructure(t *testing.T) {
-	WriteConfigFile(t, defaultConfig)
-	Load(os.TempDir())
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
 
 	expected := GiteaConfig{
 		Url: "https://example.com/gitea",
@@ -72,8 +74,8 @@ func TestLoadGiteaStructure(t *testing.T) {
 func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 	os.Setenv("PRBOT_GITEA_WEBHOOK_SECRET", "injected-webhook-secret")
 	os.Setenv("PRBOT_GITEA_TOKEN_VALUE", "injected-token")
-	WriteConfigFile(t, defaultConfig)
-	Load(os.TempDir())
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
 
 	expected := GiteaConfig{
 		Url: "https://example.com/gitea",
@@ -94,8 +96,8 @@ func TestLoadGiteaStructureInjectedEnvs(t *testing.T) {
 }
 
 func TestLoadSonarQubeStructure(t *testing.T) {
-	WriteConfigFile(t, defaultConfig)
-	Load(os.TempDir())
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
 
 	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
@@ -112,7 +114,7 @@ func TestLoadSonarQubeStructure(t *testing.T) {
 }
 
 func TestLoadSonarQubeStructureWithAdditionalMetrics(t *testing.T) {
-	WriteConfigFile(t, []byte(
+	c := WriteConfigFile(t, []byte(
 		`gitea:
   url: https://example.com/gitea
   token:
@@ -129,7 +131,7 @@ projects:
       owner: example-organization
       name: pr-bot
 `))
-	Load(os.TempDir())
+	Load(c)
 
 	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
@@ -152,8 +154,8 @@ projects:
 func TestLoadSonarQubeStructureInjectedEnvs(t *testing.T) {
 	os.Setenv("PRBOT_SONARQUBE_WEBHOOK_SECRET", "injected-webhook-secret")
 	os.Setenv("PRBOT_SONARQUBE_TOKEN_VALUE", "injected-token")
-	WriteConfigFile(t, defaultConfig)
-	Load(os.TempDir())
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
 
 	expected := SonarQubeConfig{
 		Url: "https://example.com/sonarqube",
@@ -186,7 +188,7 @@ func TestLoadStructureWithFileReferenceResolving(t *testing.T) {
 	sonarqubeTokenFile := path.Join(os.TempDir(), "token-secret-sonarqube")
 	_ = ioutil.WriteFile(sonarqubeTokenFile, []byte(`a09eb5785b25bb2cbacf48808a677a0709f02d8e`), 0444)
 
-	WriteConfigFile(t, []byte(
+	c := WriteConfigFile(t, []byte(
 		`gitea:
   url: https://example.com/gitea
   token:
@@ -232,7 +234,7 @@ projects:
 		AdditionalMetrics: []string{},
 	}
 
-	Load(os.TempDir())
+	Load(c)
 	assert.EqualValues(t, expectedGitea, Gitea)
 	assert.EqualValues(t, expectedSonarQube, SonarQube)
 
@@ -249,8 +251,8 @@ projects:
 }
 
 func TestLoadProjectsStructure(t *testing.T) {
-	WriteConfigFile(t, defaultConfig)
-	Load(os.TempDir())
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
 
 	expectedProjects := []Project{
 		{
@@ -283,7 +285,7 @@ sonarqube:
     secret: haxxor-sonarqube-secret
 projects: []
 `)
-	WriteConfigFile(t, invalidConfig)
+	c := WriteConfigFile(t, invalidConfig)
 
-	assert.Panics(t, func() { Load(os.TempDir()) }, "No panic for empty project mapping that is required")
+	assert.Panics(t, func() { Load(c) }, "No panic for empty project mapping that is required")
 }

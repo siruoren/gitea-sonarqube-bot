@@ -1,5 +1,19 @@
 # Gitea SonarQube Bot
 
+_Gitea SonarQube Bot_ is a bot that receives messages from both SonarQube and Gitea to help developers
+being productive. The idea behind this project is the missing ALM integration of Gitea in SonarQube. Unfortunately,
+this [won't be added in near future](https://github.com/SonarSource/sonarqube/pull/3248#issuecomment-701334327).
+_Gitea SonarQube Bot_ aims to fill the gap between working on pull requests and being notified on quality changes.
+
+- [Gitea SonarQube Bot](#gitea-sonarqube-bot)
+  - [Installation](#installation)
+  - [Parameters](#parameters)
+    - [Common parameters](#common-parameters)
+    - [App parameters](#app-parameters)
+    - [Security parameters](#security-parameters)
+    - [Traffic exposure parameters](#traffic-exposure-parameters)
+  - [License](#license)
+
 ## Installation
 
 ```bash
@@ -35,18 +49,19 @@ for full configuration options.
 
 ### App parameters
 
-| Name                                            | Description                                                                                                                               | Value |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| `app.configuration.gitea.url`                   | Endpoint of your Gitea instance. Must be expandable by '/api/v1' to form the API base path as shown in Swagger UI.                        | `""`  |
-| `app.configuration.gitea.token.value`           | Gitea token as plain text. Can be replaced with `file` key containing path to file.                                                       | `""`  |
-| `app.configuration.sonarqube.url`               | Endpoint of your SonarQube instance. Must be expandable by '/api' to form the API base path.                                              | `""`  |
-| `app.configuration.sonarqube.token.value`       | SonarQube token as plain text. Can be replaced with `file` key containing path to file.                                                   | `""`  |
-| `app.configuration.sonarqube.additionalMetrics` | Setting this option you can extend that default list by your own metrics.                                                                 | `[]`  |
-| `app.configuration.projects[0].sonarqube.key`   | Project key inside SonarQube                                                                                                              | `""`  |
-| `app.configuration.projects[0].gitea.owner`     | Repository owner inside Gitea                                                                                                             | `""`  |
-| `app.configuration.projects[0].gitea.name`      | Repository name inside Gitea                                                                                                              | `""`  |
-| `volumes`                                       | If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly | `[]`  |
-| `volumeMounts`                                  | If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly | `[]`  |
+| Name                                            | Description                                                                                                                                                                                              | Value |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| `app.configLocationOverride`                    | Override the default location of the configuration file (`/home/bot/config/config.yaml`). **Available since Chart version `0.2.0`. Requires at least image tag `v0.2.0`**. (See values file for details) | `""`  |
+| `app.configuration.gitea.url`                   | Endpoint of your Gitea instance. Must be expandable by '/api/v1' to form the API base path as shown in Swagger UI.                                                                                       | `""`  |
+| `app.configuration.gitea.token.value`           | Gitea token as plain text. Can be replaced with `file` key containing path to file.                                                                                                                      | `""`  |
+| `app.configuration.sonarqube.url`               | Endpoint of your SonarQube instance. Must be expandable by '/api' to form the API base path.                                                                                                             | `""`  |
+| `app.configuration.sonarqube.token.value`       | SonarQube token as plain text. Can be replaced with `file` key containing path to file.                                                                                                                  | `""`  |
+| `app.configuration.sonarqube.additionalMetrics` | Setting this option you can extend that default list by your own metrics.                                                                                                                                | `[]`  |
+| `app.configuration.projects[0].sonarqube.key`   | Project key inside SonarQube                                                                                                                                                                             | `""`  |
+| `app.configuration.projects[0].gitea.owner`     | Repository owner inside Gitea                                                                                                                                                                            | `""`  |
+| `app.configuration.projects[0].gitea.name`      | Repository name inside Gitea                                                                                                                                                                             | `""`  |
+| `volumes`                                       | If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly                                                                | `[]`  |
+| `volumeMounts`                                  | If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly                                                                | `[]`  |
 
 
 ### Security parameters
@@ -79,4 +94,4 @@ for full configuration options.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
+This project is licensed under the MIT License. See the [LICENSE](https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/helm/LICENSE) file for the full license text.

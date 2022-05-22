@@ -13,10 +13,9 @@ var (
 	Projects  []Project
 )
 
-func newConfigReader() *viper.Viper {
+func newConfigReader(configFile string) *viper.Viper {
 	v := viper.New()
-	v.SetConfigName("config.yaml")
-	v.SetConfigType("yaml")
+	v.SetConfigFile(configFile)
 	v.SetEnvPrefix("prbot")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AllowEmptyEnv(true)
@@ -38,9 +37,8 @@ func newConfigReader() *viper.Viper {
 	return v
 }
 
-func Load(configPath string) {
-	r := newConfigReader()
-	r.AddConfigPath(configPath)
+func Load(configFile string) {
+	r := newConfigReader(configFile)
 
 	err := r.ReadInConfig()
 	if err != nil {

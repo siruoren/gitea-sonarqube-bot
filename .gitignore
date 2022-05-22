@@ -6,7 +6,7 @@
 /vendor/
 /node_modules/
 /helm-releases/
-/gitea-sonarqube-bot
+/gitea-sonarqube-bot*
 /coverage.html
 /*.log
 /cover.out

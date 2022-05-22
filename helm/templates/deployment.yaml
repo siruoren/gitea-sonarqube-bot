@@ -31,6 +31,11 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.app.configLocationOverride }}
+          env:
+            - name: GITEA_SQ_BOT_CONFIG_PATH
+              value: "{{ .Values.app.configLocationOverride }}"
+          {{- end}}
           ports:
             - name: http
               containerPort: 3000
@@ -47,7 +52,11 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: sq-bot-config
+              {{- if .Values.app.configLocationOverride }}
+              mountPath: {{ dir .Values.app.configLocationOverride }}
+              {{- else }}
               mountPath: /home/bot/config
+              {{- end }}
               readOnly: true
             {{- if .Values.volumeMounts }}
             {{- toYaml .Values.volumeMounts | nindent 12 }}
@@ -68,6 +77,11 @@ spec:
         - name: sq-bot-config
           secret:
             secretName: {{ include "helm.fullname" . }}
+            {{- if .Values.app.configLocationOverride }}
+            items:
+              - key: config.yaml
+                path: {{ base .Values.app.configLocationOverride }}
+            {{- end }}
         {{- if .Values.volumes }}
         {{- toYaml .Values.volumes | nindent 8 }}
         {{- end }}
