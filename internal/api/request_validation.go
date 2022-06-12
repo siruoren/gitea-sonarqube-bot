@@ -5,12 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"log"
 )
 
 func isValidWebhook(message []byte, key string, signature string, component string) (bool, error) {
-	log.Printf("'%s'", signature)
-
 	if key == "" && signature == "" {
 		// No webhook token configured and no signature header received. Skipping request validation.
 		return true, nil
