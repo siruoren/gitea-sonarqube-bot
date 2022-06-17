@@ -55,23 +55,20 @@ See [config.example.yaml](config/config.example.yaml) for a full configuration s
 
 Supported environment variables for application runtime configuration:
 
-| Environment Variable        | Purpose                         |
-|-----------------------------|---------------------------------|
-| `GITEA_SQ_BOT_PORT`         | Port the bot will listen on     |
-| `GITEA_SQ_BOT_CONFIG_PATH`  | Full path to configuration file |
+| Environment Variable        | Purpose                         | Since  |
+|-----------------------------|---------------------------------|--------|
+| `GITEA_SQ_BOT_PORT`         | Port the bot will listen on     | v0.2.1 |
+| `GITEA_SQ_BOT_CONFIG_PATH`  | Full path to configuration file | v0.2.0 |
 
 For detailed information, use the `--help` flag.
 
 ### Docker
 
-Create a directory `config` and place your [config.yaml](config/config.example.yaml) inside it. Open a terminal next to this directory
-and execute the following (replace `$TAG` first):
+Create a directory `config` and place your [config.yaml](config/config.example.yaml) inside it. Open a terminal inside the newly created directory and execute the following command (replace `$TAG` first):
 
 ```bash
-docker run --rm -it -p 9000:3000 -v "$(pwd)/config/:/home/bot/config/" justusbunsi/gitea-sonarqube-bot:$TAG
+docker run --rm -it -p 9000:3000 -v "$(pwd):/home/bot/config/" justusbunsi/gitea-sonarqube-bot:$TAG
 ```
-
-**Starting with v0.2.0**
 
 By default, the bot expects its configuration file under `./config/config.yaml` next to the bot executable. Inside the Docker image the
 corresponding full path is `/home/bot/config/config.yaml`. If you prefer using a different location or even a different filename, you can
@@ -83,6 +80,15 @@ container would be:
 ```bash
 docker run --rm -it -p 9000:3000 -e "GITEA_SQ_BOT_CONFIG_PATH=/mnt/sqbot.config.yml" -v "$(pwd)/config/:/mnt/" justusbunsi/gitea-sonarqube-bot:$TAG
 ```
+
+If there are port mapping issues, you can use any other free port from your host. If you wish to use another port for the bot itself, you can override the default port `3000` by using the environment variable `GITEA_SQ_BOT_PORT`. Let's say you want to consistently use port _9001_ inside and outside the container, a correct command would be:
+
+```bash
+# your terminals' pwd is the bot config directory
+docker run --rm -it -p 9001:9001 -e "GITEA_SQ_BOT_PORT=9001" -v "$(pwd):/home/bot/config/" justusbunsi/gitea-sonarqube-bot:$TAG
+```
+
+
 
 ### Helm Chart
 
