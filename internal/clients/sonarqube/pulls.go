@@ -9,6 +9,7 @@ type PullRequest struct {
 
 type PullsResponse struct {
 	PullRequests []PullRequest `json:"pullRequests"`
+	Errors       []Error       `json:"errors"`
 }
 
 func (r *PullsResponse) GetPullRequest(name string) *PullRequest {

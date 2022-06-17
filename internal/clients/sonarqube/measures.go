@@ -28,6 +28,7 @@ type MeasuresComponent struct {
 type MeasuresResponse struct {
 	Component MeasuresComponent         `json:"component"`
 	Metrics   []MeasuresComponentMetric `json:"metrics"`
+	Errors    []Error                   `json:"errors"`
 }
 
 func (mr *MeasuresResponse) GetRenderedMarkdownTable() string {

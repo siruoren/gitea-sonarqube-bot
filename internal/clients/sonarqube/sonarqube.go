@@ -38,6 +38,38 @@ func GetRenderedQualityGate(qg string) string {
 	return fmt.Sprintf("**Quality Gate**: %s", status)
 }
 
+func retrieveDataFromApi(sdk *SonarQubeSdk, request *http.Request, wrapper interface{}) error {
+	request.Header.Add("Authorization", sdk.basicAuth())
+	rawResponse, err := sdk.client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if rawResponse.StatusCode == http.StatusUnauthorized {
+		return fmt.Errorf("missing or invalid API token")
+	}
+
+	if rawResponse.Body != nil {
+		defer rawResponse.Body.Close()
+	}
+
+	body, err := sdk.bodyReader(rawResponse.Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(body, wrapper)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type Error struct {
+	Message string `json:"msg"`
+}
+
 type SonarQubeSdkInterface interface {
 	GetMeasures(string, string) (*MeasuresResponse, error)
 	GetPullRequestUrl(string, int64) string
@@ -52,44 +84,49 @@ type CommentComposeData struct {
 	QualityGate string
 }
 
+type ClientInterface interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type BodyReader func(io.Reader) ([]byte, error)
+type HttpRequest func(method string, target string, body io.Reader) (*http.Request, error)
+
 type SonarQubeSdk struct {
-	client  *http.Client
-	baseUrl string
-	token   string
+	client      ClientInterface
+	bodyReader  BodyReader
+	httpRequest HttpRequest
+	baseUrl     string
+	token       string
 }
 
 func (sdk *SonarQubeSdk) GetPullRequestUrl(project string, index int64) string {
 	return fmt.Sprintf("%s/dashboard?id=%s&pullRequest=%s", sdk.baseUrl, project, PRNameFromIndex(index))
 }
 
-func (sdk *SonarQubeSdk) fetchPullRequests(project string) *PullsResponse {
+func (sdk *SonarQubeSdk) fetchPullRequests(project string) (*PullsResponse, error) {
 	url := fmt.Sprintf("%s/api/project_pull_requests/list?project=%s", sdk.baseUrl, project)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	request, err := sdk.httpRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Printf("Cannot initialize Request: %s", err.Error())
-		return nil
-	}
-	req.Header.Add("Authorization", sdk.basicAuth())
-	rawResp, _ := sdk.client.Do(req)
-	if rawResp.Body != nil {
-		defer rawResp.Body.Close()
+		return nil, err
 	}
 
-	body, _ := io.ReadAll(rawResp.Body)
 	response := &PullsResponse{}
-	err = json.Unmarshal(body, &response)
+	err = retrieveDataFromApi(sdk, request, response)
 	if err != nil {
-		log.Printf("cannot parse response from SonarQube: %s", err.Error())
-		return nil
+		return nil, err
 	}
 
-	return response
+	if len(response.Errors) != 0 {
+		return nil, fmt.Errorf("%s", response.Errors[0].Message)
+	}
+
+	return response, nil
 }
 
 func (sdk *SonarQubeSdk) GetPullRequest(project string, index int64) (*PullRequest, error) {
-	response := sdk.fetchPullRequests(project)
-	if response == nil {
-		return nil, fmt.Errorf("unable to retrieve pull requests from SonarQube")
+	response, err := sdk.fetchPullRequests(project)
+	if err != nil {
+		return nil, fmt.Errorf("fetching pull requests failed: %w", err)
 	}
 
 	name := PRNameFromIndex(index)
@@ -103,21 +140,19 @@ func (sdk *SonarQubeSdk) GetPullRequest(project string, index int64) (*PullReque
 
 func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (*MeasuresResponse, error) {
 	url := fmt.Sprintf("%s/api/measures/component?additionalFields=metrics&metricKeys=%s&component=%s&pullRequest=%s", sdk.baseUrl, settings.SonarQube.GetMetricsList(), project, branch)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	request, err := sdk.httpRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("cannot initialize Request: %w", err)
-	}
-	req.Header.Add("Authorization", sdk.basicAuth())
-	rawResp, _ := sdk.client.Do(req)
-	if rawResp.Body != nil {
-		defer rawResp.Body.Close()
+		return nil, err
 	}
 
-	body, _ := io.ReadAll(rawResp.Body)
 	response := &MeasuresResponse{}
-	err = json.Unmarshal(body, &response)
+	err = retrieveDataFromApi(sdk, request, response)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse response from SonarQube: %w", err)
+		return nil, err
+	}
+
+	if len(response.Errors) != 0 {
+		return nil, fmt.Errorf("%s", response.Errors[0].Message)
 	}
 
 	return response, nil
@@ -147,8 +182,10 @@ func (sdk *SonarQubeSdk) basicAuth() string {
 
 func New() *SonarQubeSdk {
 	return &SonarQubeSdk{
-		client:  &http.Client{},
-		baseUrl: settings.SonarQube.Url,
-		token:   settings.SonarQube.Token.Value,
+		client:      &http.Client{},
+		bodyReader:  io.ReadAll,
+		httpRequest: http.NewRequest,
+		baseUrl:     settings.SonarQube.Url,
+		token:       settings.SonarQube.Token.Value,
 	}
 }
