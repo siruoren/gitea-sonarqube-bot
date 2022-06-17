@@ -57,6 +57,9 @@ app:
   # Setting this will also change the mount point for `.Values.app.configuration` to the directory part of the override value.
   configLocationOverride: ""
 
+  # @param app.listeningPort Port the application will listening on inside the pod container. **Available since Chart version `0.2.1`. Requires at least image tag `v0.2.1`**.
+  listeningPort: 3000
+
   # This object represents the [config.yaml](https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/config/config.example.yaml) provided to the application.
   configuration:
     # Gitea related configuration. Necessary for adding/updating comments on repository pull requests

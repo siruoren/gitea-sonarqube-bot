@@ -31,14 +31,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.app.configLocationOverride }}
           env:
+          {{- if .Values.app.configLocationOverride }}
             - name: GITEA_SQ_BOT_CONFIG_PATH
               value: "{{ .Values.app.configLocationOverride }}"
           {{- end}}
+            - name: GITEA_SQ_BOT_PORT
+              value: "{{ .Values.app.listeningPort }}"
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: {{ .Values.app.listeningPort }}
               protocol: TCP
           livenessProbe:
             httpGet:

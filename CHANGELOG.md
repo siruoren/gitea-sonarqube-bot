@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.2.1
+
+### 🤖 Application
+
+- Allow configuring listening port
+
+### 🐳 Docker image
+
+- Add `GITEA_SQ_BOT_PORT` environment variable
+
+### ☸️ Helm Chart
+
+- Add `.Values.app.listeningPort` parameter
+
 ## v0.2.0
 
 ### 🤖 Application

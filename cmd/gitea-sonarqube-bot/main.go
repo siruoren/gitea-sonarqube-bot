@@ -16,9 +16,9 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name:        "gitea-sonarqube-pr-bot",
+		Name:        "gitea-sonarqube-bot",
 		Usage:       "Improve your experience with SonarQube and Gitea",
-		Description: `By default, gitea-sonarqube-pr-bot will start running the webserver if no arguments are passed.`,
+		Description: `Start an instance of gitea-sonarqube-bot to integrate SonarQube analysis into Gitea Pull Requests.`,
 		Action:      serveApi,
 		Flags: []cli.Flag{
 			&cli.PathFlag{
@@ -28,6 +28,13 @@ func main() {
 				Usage:     "Full path to configuration file.",
 				EnvVars:   []string{"GITEA_SQ_BOT_CONFIG_PATH"},
 				TakesFile: true,
+			},
+			&cli.IntFlag{
+				Name:    "port",
+				Aliases: []string{"p"},
+				Value:   3000,
+				Usage:   "Port the bot will listen on.",
+				EnvVars: []string{"GITEA_SQ_BOT_PORT"},
 			},
 		},
 	}
@@ -49,5 +56,5 @@ func serveApi(c *cli.Context) error {
 	sqHandler := api.NewSonarQubeWebhookHandler(giteaSdk.New(), sonarQubeSdk.New())
 	server := api.New(giteaHandler, sqHandler)
 
-	return endless.ListenAndServe(":3000", server.Engine)
+	return endless.ListenAndServe(fmt.Sprintf(":%d", c.Int("port")), server.Engine)
 }

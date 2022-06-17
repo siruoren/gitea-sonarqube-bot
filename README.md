@@ -53,6 +53,15 @@ See [config.example.yaml](config/config.example.yaml) for a full configuration s
 
 ## Installation
 
+Supported environment variables for application runtime configuration:
+
+| Environment Variable        | Purpose                         |
+|-----------------------------|---------------------------------|
+| `GITEA_SQ_BOT_PORT`         | Port the bot will listen on     |
+| `GITEA_SQ_BOT_CONFIG_PATH`  | Full path to configuration file |
+
+For detailed information, use the `--help` flag.
+
 ### Docker
 
 Create a directory `config` and place your [config.yaml](config/config.example.yaml) inside it. Open a terminal next to this directory

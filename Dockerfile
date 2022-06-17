@@ -41,6 +41,7 @@ ENV HOME=/home/bot
 EXPOSE 3000
 ENV GIN_MODE "release"
 ENV GITEA_SQ_BOT_CONFIG_PATH "/home/bot/config/config.yaml"
+ENV GITEA_SQ_BOT_PORT "3000"
 
 VOLUME ["/home/bot/config/"]
 RUN ["chmod", "+x", "/usr/local/bin/docker-entrypoint.sh"]
