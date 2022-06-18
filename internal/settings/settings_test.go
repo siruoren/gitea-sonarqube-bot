@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,6 +30,9 @@ projects:
     gitea:
       owner: example-organization
       name: pr-bot
+namingPattern:
+  regex: "^PR-(\\d+)$"
+  template: "PR-%d"
 `)
 
 func WriteConfigFile(t *testing.T, content []byte) string {
@@ -288,4 +292,80 @@ projects: []
 	c := WriteConfigFile(t, invalidConfig)
 
 	assert.Panics(t, func() { Load(c) }, "No panic for empty project mapping that is required")
+}
+
+func TestLoadNamingPatternStructure(t *testing.T) {
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
+
+	expected := &PatternConfig{
+		RegExp:   regexp.MustCompile(`^PR-(\d+)$`),
+		Template: "PR-%d",
+	}
+
+	assert.EqualValues(t, expected, Pattern)
+}
+
+func TestLoadNamingPatternStructureWithInternalDefaults(t *testing.T) {
+	c := WriteConfigFile(t, []byte(
+		`gitea:
+  url: https://example.com/gitea
+  token:
+    value: fake-gitea-token
+sonarqube:
+  url: https://example.com/sonarqube
+  token:
+    value: fake-sonarqube-token
+  additionalMetrics: "new_security_hotspots"
+projects:
+  - sonarqube:
+      key: gitea-sonarqube-pr-bot
+    gitea:
+      owner: example-organization
+      name: pr-bot
+`))
+	Load(c)
+
+	expected := &PatternConfig{
+		RegExp:   regexp.MustCompile(`^PR-(\d+)$`),
+		Template: "PR-%d",
+	}
+
+	assert.EqualValues(t, expected, Pattern)
+}
+
+func TestLoadNamingPatternStructureInjectedEnvs(t *testing.T) {
+	os.Setenv("PRBOT_NAMINGPATTERN_REGEX", "test-(\\d+)-pullrequest")
+	os.Setenv("PRBOT_NAMINGPATTERN_TEMPLATE", "test-%d-pullrequest")
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
+
+	expected := &PatternConfig{
+		RegExp:   regexp.MustCompile(`test-(\d+)-pullrequest`),
+		Template: "test-%d-pullrequest",
+	}
+
+	assert.EqualValues(t, expected, Pattern)
+
+	t.Cleanup(func() {
+		os.Unsetenv("PRBOT_NAMINGPATTERN_REGEX")
+		os.Unsetenv("PRBOT_NAMINGPATTERN_TEMPLATE")
+	})
+}
+
+func TestLoadNamingPatternStructureMixedInput(t *testing.T) {
+	os.Setenv("PRBOT_NAMINGPATTERN_REGEX", "test-(\\d+)-pullrequest")
+	c := WriteConfigFile(t, defaultConfig)
+	Load(c)
+
+	expected := &PatternConfig{
+		RegExp:   regexp.MustCompile(`test-(\d+)-pullrequest`),
+		Template: "PR-%d",
+	}
+
+	assert.EqualValues(t, expected, Pattern)
+
+	t.Cleanup(func() {
+		os.Unsetenv("PRBOT_NAMINGPATTERN_REGEX")
+	})
 }

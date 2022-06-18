@@ -40,6 +40,9 @@ func withValidGiteaSynchronizeRequestData(t *testing.T, jsonBody []byte) (*http.
 }
 
 func TestHandleGiteaCommentWebhookSuccess(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		Template: "PR-%d",
+	}
 	settings.Gitea = settings.GiteaConfig{
 		Webhook: &settings.Webhook{
 			Secret: "",
@@ -61,9 +64,16 @@ func TestHandleGiteaCommentWebhookSuccess(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, `{"message": "Processing data. See bot logs for details."}`, rr.Body.String())
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestHandleGiteaCommentWebhookInvalidJSONBody(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		Template: "PR-%d",
+	}
 	settings.Gitea = settings.GiteaConfig{
 		Webhook: &settings.Webhook{
 			Secret: "",
@@ -82,6 +92,10 @@ func TestHandleGiteaCommentWebhookInvalidJSONBody(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)
 	assert.Equal(t, `{"message": "Error parsing POST body."}`, rr.Body.String())
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestHandleGiteaCommentInvalidWebhookSignature(t *testing.T) {

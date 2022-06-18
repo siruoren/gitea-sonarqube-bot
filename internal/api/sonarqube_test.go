@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
@@ -27,6 +28,9 @@ func withValidSonarQubeRequestData(t *testing.T, jsonBody []byte) (*http.Request
 }
 
 func TestHandleSonarQubeWebhookProjectMapped(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		RegExp: regexp.MustCompile(`^PR-(\d+)$`),
+	}
 	settings.SonarQube = settings.SonarQubeConfig{
 		Webhook: &settings.Webhook{
 			Secret: "",
@@ -44,6 +48,10 @@ func TestHandleSonarQubeWebhookProjectMapped(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, `{"message": "Processing data. See bot logs for details."}`, rr.Body.String())
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestHandleSonarQubeWebhookProjectNotMapped(t *testing.T) {
@@ -99,6 +107,9 @@ func TestHandleSonarQubeWebhookInvalidWebhookSignature(t *testing.T) {
 }
 
 func TestHandleSonarQubeWebhookForPullRequest(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		RegExp: regexp.MustCompile(`^PR-(\d+)$`),
+	}
 	settings.SonarQube = settings.SonarQubeConfig{
 		Webhook: &settings.Webhook{
 			Secret: "",
@@ -117,9 +128,16 @@ func TestHandleSonarQubeWebhookForPullRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, `{"message": "Processing data. See bot logs for details."}`, rr.Body.String())
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestHandleSonarQubeWebhookForBranch(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		RegExp: regexp.MustCompile(`^PR-(\d+)$`),
+	}
 	settings.SonarQube = settings.SonarQubeConfig{
 		Webhook: &settings.Webhook{
 			Secret: "",
@@ -138,4 +156,8 @@ func TestHandleSonarQubeWebhookForBranch(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, `{"message": "Ignore Hook for non-PR analysis."}`, rr.Body.String())
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }

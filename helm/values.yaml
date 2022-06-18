@@ -129,6 +129,13 @@ app:
           owner: ""
           name: ""
 
+    # Define pull request names from SonarScanner analysis. Default pattern matches the Jenkins Gitea plugin schema.
+    # @param app.configuration.namingPattern.regex Regular expression that MUST HAVE exactly ONE GROUP that matches the integer part of the PR. That integer part is identical to the pull request ID in Gitea.
+    # @param app.configuration.namingPattern.template Valid Go format string. It MUST have one integer placeholder which will be replaced by the pull request ID. See: https://pkg.go.dev/fmt#hdr-Printing
+    namingPattern:
+      regex: "^PR-(\\d+)$"
+      template: "PR-%d"
+
 # @param volumes If token and webhook secrets shall be provided via file, volumes and volume mounts can be configured to setup the environment accordingly
 volumes: []
 # - name: gitea-connection

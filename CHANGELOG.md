@@ -5,6 +5,7 @@
 ### 🤖 Application
 
 - Allow configuring listening port
+- Allow changing naming pattern for Pull Requests
 
 ### 🐳 Docker image
 
@@ -13,6 +14,7 @@
 ### ☸️ Helm Chart
 
 - Add `.Values.app.listeningPort` parameter
+- Add `.Values.app.configuration.namingPattern` parameters
 
 ## v0.2.0
 

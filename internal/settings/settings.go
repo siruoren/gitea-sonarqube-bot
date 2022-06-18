@@ -2,6 +2,7 @@ package settings
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -11,6 +12,7 @@ var (
 	Gitea     GiteaConfig
 	SonarQube SonarQubeConfig
 	Projects  []Project
+	Pattern   *PatternConfig
 )
 
 func newConfigReader(configFile string) *viper.Viper {
@@ -33,6 +35,8 @@ func newConfigReader(configFile string) *viper.Viper {
 	v.SetDefault("sonarqube.webhook.secretFile", "")
 	v.SetDefault("sonarqube.additionalMetrics", []string{})
 	v.SetDefault("projects", []Project{})
+	v.SetDefault("namingPattern.regex", `^PR-(\d+)$`)
+	v.SetDefault("namingPattern.template", "PR-%d")
 
 	return v
 }
@@ -70,5 +74,9 @@ func Load(configFile string) {
 		Token:             NewToken(r.GetString, "sonarqube", errCallback),
 		Webhook:           NewWebhook(r.GetString, "sonarqube", errCallback),
 		AdditionalMetrics: r.GetStringSlice("sonarqube.additionalMetrics"),
+	}
+	Pattern = &PatternConfig{
+		RegExp:   regexp.MustCompile(r.GetString("namingPattern.regex")),
+		Template: r.GetString("namingPattern.template"),
 	}
 }

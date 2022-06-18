@@ -57,3 +57,17 @@ projects:
     gitea:
       owner: justusbunsi
       name: example-repo
+
+# Define pull request names from SonarScanner analysis. Default pattern matches the Jenkins Gitea plugin schema.
+namingPattern:
+  # Regular expression that MUST HAVE exactly ONE GROUP that matches the integer part of the PR.
+  # That integer part is identical to the pull request ID in Gitea.
+  regex: "^PR-(\\d+)$"
+
+  # Valid Go format string. It MUST have one integer placeholder which will be replaced by the pull request ID.
+  # See: https://pkg.go.dev/fmt#hdr-Printing
+  template: "PR-%d"
+
+  # Example for integer-only names
+  # # regex: "^(\\d+)$"
+  # # template: "%d"

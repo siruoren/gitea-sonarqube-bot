@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -16,17 +15,16 @@ import (
 )
 
 func ParsePRIndex(name string) (int, error) {
-	re := regexp.MustCompile(`^PR-(\d+)$`)
-	res := re.FindSubmatch([]byte(name))
+	res := settings.Pattern.RegExp.FindSubmatch([]byte(name))
 	if len(res) != 2 {
-		return 0, fmt.Errorf("branch name '%s' does not match regex '%s'", name, re.String())
+		return 0, fmt.Errorf("branch name '%s' does not match regex '%s'", name, settings.Pattern.RegExp.String())
 	}
 
 	return strconv.Atoi(string(res[1]))
 }
 
 func PRNameFromIndex(index int64) string {
-	return fmt.Sprintf("PR-%d", index)
+	return fmt.Sprintf(settings.Pattern.Template, index)
 }
 
 func GetRenderedQualityGate(qg string) string {

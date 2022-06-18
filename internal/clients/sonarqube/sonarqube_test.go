@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 
 	"gitea-sonarqube-pr-bot/internal/settings"
@@ -28,17 +29,41 @@ func (c *ClientMock) Do(req *http.Request) (*http.Response, error) {
 }
 
 func TestParsePRIndexSuccess(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		RegExp: regexp.MustCompile(`^PR-(\d+)$`),
+	}
+
 	actual, _ := ParsePRIndex("PR-1337")
 	assert.Equal(t, 1337, actual, "PR index parsing is broken")
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestParsePRIndexNonIntegerFailure(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		RegExp: regexp.MustCompile(`^PR-(\d+)$`),
+	}
+
 	_, err := ParsePRIndex("PR-invalid")
 	assert.EqualErrorf(t, err, "branch name 'PR-invalid' does not match regex '^PR-(\\d+)$'", "Integer parsing succeeds unexpectedly")
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestPRNameFromIndex(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		Template: "PR-%d",
+	}
+
 	assert.Equal(t, "PR-1337", PRNameFromIndex(1337))
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestGetRenderedQualityGateSuccess(t *testing.T) {
@@ -57,9 +82,16 @@ func TestGetPullRequestUrl(t *testing.T) {
 	sdk := &SonarQubeSdk{
 		baseUrl: "https://sonarqube.example.com",
 	}
+	settings.Pattern = &settings.PatternConfig{
+		Template: "PR-%d",
+	}
 
 	actual := sdk.GetPullRequestUrl("test-project", 1337)
 	assert.Equal(t, "https://sonarqube.example.com/dashboard?id=test-project&pullRequest=PR-1337", actual, "PR Dashboard URL building broken")
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestRetrieveDataFromApiSuccess(t *testing.T) {
@@ -259,6 +291,9 @@ func TestFetchPullRequestsErrorsInResponse(t *testing.T) {
 }
 
 func TestGetPullRequestSuccess(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		Template: "PR-%d",
+	}
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"pullRequests":[{"key":"PR-1","title":"pr-branch","branch":"pr-branch","base":"main","status":{"qualityGateStatus":"OK","bugs":0,"vulnerabilities":0,"codeSmells":0},"analysisDate":"2022-06-12T11:23:09+0000","target":"main"}]}`))
 	})
@@ -279,6 +314,10 @@ func TestGetPullRequestSuccess(t *testing.T) {
 
 	assert.Nil(t, err, "Successful data retrieval broken and throws error")
 	assert.IsType(t, &PullRequest{}, actual, "Happy path broken")
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestGetPullRequestFetchError(t *testing.T) {
@@ -306,6 +345,10 @@ func TestGetPullRequestFetchError(t *testing.T) {
 }
 
 func TestGetPullRequestUnknownPR(t *testing.T) {
+	settings.Pattern = &settings.PatternConfig{
+		Template: "PR-%d",
+	}
+
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"pullRequests":[{"key":"PR-1","title":"pr-branch","branch":"pr-branch","base":"main","status":{"qualityGateStatus":"OK","bugs":0,"vulnerabilities":0,"codeSmells":0},"analysisDate":"2022-06-12T11:23:09+0000","target":"main"}]}`))
 	})
@@ -325,6 +368,10 @@ func TestGetPullRequestUnknownPR(t *testing.T) {
 	_, err := sdk.GetPullRequest("test-project", 1337)
 
 	assert.Errorf(t, err, "no pull request found with name 'PR-1337'")
+
+	t.Cleanup(func() {
+		settings.Pattern = nil
+	})
 }
 
 func TestGetMeasuresSuccess(t *testing.T) {
