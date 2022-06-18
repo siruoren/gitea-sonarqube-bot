@@ -6,6 +6,7 @@
 
 - Allow configuring listening port
 - Allow changing naming pattern for Pull Requests
+- Improve error handling for SonarQube communication
 
 ### 🐳 Docker image
 

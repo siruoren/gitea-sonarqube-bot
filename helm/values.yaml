@@ -79,7 +79,8 @@ app:
       # request will be ignored.
       # The bot looks for `X-Gitea-Signature` header containing the sha256 hmac hash of the plain text secret. If the header
       # exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be validated.
-      # @skip app.configuration.gitea.webhook
+      # @param app.configuration.gitea.webhook.secret Secret for signature header (in plaintext)
+      # @extra app.configuration.gitea.webhook.secretFile Path to file containing the plain text secret. Alternative to inline `app.configuration.gitea.webhook.secret`
       webhook:
         secret: ""
         # # or path to file containing the plain text secret
@@ -103,7 +104,8 @@ app:
       # The bot looks for `X-Sonar-Webhook-HMAC-SHA256` header containing the sha256 hmac hash of the plain text secret.
       # If the header exists and no webhookSecret is defined here, the bot will ignore the request, because it cannot be
       # validated.
-      # @skip app.configuration.sonarqube.webhook
+      # @param app.configuration.sonarqube.webhook.secret Secret for signature header (in plaintext)
+      # @extra app.configuration.sonarqube.webhook.secretFile Path to file containing the plain text secret. Alternative to inline `app.configuration.sonarqube.webhook.secret`
       webhook:
         secret: ""
         # # or path to file containing the plain text secret
