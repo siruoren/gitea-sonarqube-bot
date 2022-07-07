@@ -78,7 +78,7 @@ func serveApi(c *cli.Context) error {
 
 	log.Println("Listen on", srv.Addr)
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutting down server...")
