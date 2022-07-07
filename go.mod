@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	code.gitea.io/sdk/gitea v0.15.1
-	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-gonic/gin v1.7.7
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1

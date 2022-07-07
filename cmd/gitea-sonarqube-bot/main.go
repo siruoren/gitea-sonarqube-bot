@@ -1,17 +1,26 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"gitea-sonarqube-pr-bot/internal/api"
 	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
 	sonarQubeSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
 	"gitea-sonarqube-pr-bot/internal/settings"
 
-	"github.com/fvbock/endless"
 	"github.com/urfave/cli/v2"
+)
+
+var (
+	HammerTime time.Duration = 15 * time.Second
 )
 
 func main() {
@@ -46,15 +55,40 @@ func main() {
 }
 
 func serveApi(c *cli.Context) error {
-	fmt.Println("Hi! I'm the Gitea-SonarQube-PR bot. At your service.")
-
 	config := c.Path("config")
 	settings.Load(config)
-	fmt.Printf("Config file in use: %s\n", config)
+
+	log.Println("Hi! I'm Gitea SonarQube Bot. At your service.")
+	log.Println("Config file in use:", config)
 
 	giteaHandler := api.NewGiteaWebhookHandler(giteaSdk.New(), sonarQubeSdk.New())
 	sqHandler := api.NewSonarQubeWebhookHandler(giteaSdk.New(), sonarQubeSdk.New())
 	server := api.New(giteaHandler, sqHandler)
 
-	return endless.ListenAndServe(fmt.Sprintf(":%d", c.Int("port")), server.Engine)
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", c.Int("port")),
+		Handler: server.Engine,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalln(err)
+		}
+	}()
+
+	log.Println("Listen on", srv.Addr)
+
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), HammerTime)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("[STOP - Hammer Time] Forcefully shutting down\n", err)
+	}
+
+	return nil
 }
