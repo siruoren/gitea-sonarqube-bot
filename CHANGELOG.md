@@ -1,5 +1,11 @@
 # Changelog
 
+## Pending...
+
+### 👻 Maintenance
+
+- Remove `fvbock/endless` dependency
+
 ## v0.2.1
 
 ### 🤖 Application
