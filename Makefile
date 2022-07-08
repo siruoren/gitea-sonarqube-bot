@@ -27,7 +27,7 @@ run:
 
 clean:
 	go clean
-	rm -f ${BINARY_NAME}
+	rm -f ${BINARY_NAME}*
 	rm -f cover.out cover.html test-report.out
 
 test:
