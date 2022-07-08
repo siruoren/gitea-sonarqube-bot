@@ -1,7 +1,7 @@
 ###################################
 # Build stages
 ###################################
-FROM golang:1.18-alpine3.15 AS build-go
+FROM golang:1.18-alpine3.16@sha256:7cc62574fcf9c5fb87ad42a9789d5539a6a085971d58ee75dd2ee146cb8a8695 AS build-go
 
 ARG GOPROXY
 ENV GOPROXY ${GOPROXY:-direct}
@@ -17,7 +17,7 @@ RUN go build ./cmd/gitea-sonarqube-bot
 ###################################
 # Production image
 ###################################
-FROM alpine:3.15
+FROM alpine:3.16@sha256:686d8c9dfa6f3ccfc8230bc3178d23f84eeaf7e457f36f271ab1acc53015037c
 LABEL maintainer="justusbunsi <sk.bunsenbrenner@gmail.com>"
 
 RUN apk update \
