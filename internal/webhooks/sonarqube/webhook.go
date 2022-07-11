@@ -7,6 +7,10 @@ import (
 	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
 )
 
+type properties struct {
+	OriginalCommit string `json:"sonar.analysis.sqbot,omitempty"`
+}
+
 type Webhook struct {
 	ServerUrl string `json:"serverUrl"`
 	Revision  string `json:"revision"`
@@ -27,10 +31,8 @@ type Webhook struct {
 			Status string
 		} `json:"conditions"`
 	} `json:"qualityGate"`
-	Properties *struct {
-		OriginalCommit string `json:"sonar.analysis.sqbot,omitempty"`
-	} `json:"properties,omitempty"`
-	PRIndex int
+	Properties *properties `json:"properties,omitempty"`
+	PRIndex    int
 }
 
 func (w *Webhook) GetRevision() string {
