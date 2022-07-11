@@ -2,6 +2,8 @@ package api
 
 import (
 	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -22,7 +24,12 @@ func withValidSonarQubeRequestData(t *testing.T, jsonBody []byte) (*http.Request
 	req.Header.Set("X-SonarQube-Project", "pr-bot")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(webhookHandler.Handle)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		status, response := webhookHandler.Handle(r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		io.WriteString(w, fmt.Sprintf(`{"message": "%s"}`, response))
+	})
 
 	return req, rr, handler
 }

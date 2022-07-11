@@ -2,6 +2,8 @@ package api
 
 import (
 	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,7 +22,12 @@ func withValidGiteaCommentRequestData(t *testing.T, jsonBody []byte) (*http.Requ
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(webhookHandler.HandleComment)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		status, response := webhookHandler.HandleComment(r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		io.WriteString(w, fmt.Sprintf(`{"message": "%s"}`, response))
+	})
 
 	return req, rr, handler
 }
@@ -34,7 +41,12 @@ func withValidGiteaSynchronizeRequestData(t *testing.T, jsonBody []byte) (*http.
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(webhookHandler.HandleSynchronize)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		status, response := webhookHandler.HandleSynchronize(r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		io.WriteString(w, fmt.Sprintf(`{"message": "%s"}`, response))
+	})
 
 	return req, rr, handler
 }

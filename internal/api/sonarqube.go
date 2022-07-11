@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,7 +14,7 @@ import (
 )
 
 type SonarQubeWebhookHandlerInferface interface {
-	Handle(rw http.ResponseWriter, r *http.Request)
+	Handle(r *http.Request) (int, string)
 }
 
 type SonarQubeWebhookHandler struct {
@@ -56,17 +55,12 @@ func (h *SonarQubeWebhookHandler) processData(w *webhook.Webhook, repo settings.
 	h.giteaSdk.PostComment(repo, w.PRIndex, comment)
 }
 
-func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-
+func (h *SonarQubeWebhookHandler) Handle(r *http.Request) (int, string) {
 	projectName := r.Header.Get("X-SonarQube-Project")
 	found, pIdx := h.inProjectsMapping(settings.Projects, projectName)
 	if !found {
 		log.Printf("Received hook for project '%s' which is not configured. Request ignored.", projectName)
-
-		rw.WriteHeader(http.StatusOK)
-		io.WriteString(rw, fmt.Sprintf(`{"message": "Project '%s' not in configured list. Request ignored."}`, projectName))
-		return
+		return http.StatusOK, fmt.Sprintf("Project '%s' not in configured list. Request ignored.", projectName)
 	}
 
 	log.Printf("Received hook for project '%s'. Processing data.", projectName)
@@ -78,38 +72,28 @@ func (h *SonarQubeWebhookHandler) Handle(rw http.ResponseWriter, r *http.Request
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error reading request body %s", err.Error())
-		rw.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
-		return
+		return http.StatusInternalServerError, err.Error()
 	}
 
 	ok, err := isValidWebhook(raw, settings.SonarQube.Webhook.Secret, r.Header.Get("X-Sonar-Webhook-HMAC-SHA256"), "SonarQube")
 	if !ok {
 		log.Print(err.Error())
-		rw.WriteHeader(http.StatusPreconditionFailed)
-		io.WriteString(rw, `{"message": "Webhook validation failed. Request rejected."}`)
-		return
+		return http.StatusPreconditionFailed, "Webhook validation failed. Request rejected."
 	}
 
 	w, ok := webhook.New(raw)
 	if !ok {
-		rw.WriteHeader(http.StatusUnprocessableEntity)
-		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
-		return
+		return http.StatusUnprocessableEntity, "Error parsing POST body."
 	}
-
-	// Send response to SonarQube at this point to ensure being within 10 seconds limit of webhook response timeout
-	rw.WriteHeader(http.StatusOK)
 
 	if strings.ToLower(w.Branch.Type) != "pull_request" {
-		io.WriteString(rw, `{"message": "Ignore Hook for non-PR analysis."}`)
 		log.Println("Ignore Hook for non-PR analysis")
-		return
+		return http.StatusOK, "Ignore Hook for non-PR analysis."
 	}
 
-	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
-
 	h.processData(w, settings.Projects[pIdx].Gitea)
+
+	return http.StatusOK, "Processing data. See bot logs for details."
 }
 
 func NewSonarQubeWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) SonarQubeWebhookHandlerInferface {

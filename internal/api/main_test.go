@@ -22,20 +22,23 @@ type SonarQubeHandlerMock struct {
 	mock.Mock
 }
 
-func (h *SonarQubeHandlerMock) Handle(rw http.ResponseWriter, r *http.Request) {
-	h.Called(rw, r)
+func (h *SonarQubeHandlerMock) Handle(r *http.Request) (int, string) {
+	h.Called(r)
+	return http.StatusOK, "test-execution"
 }
 
 type GiteaHandlerMock struct {
 	mock.Mock
 }
 
-func (h *GiteaHandlerMock) HandleSynchronize(rw http.ResponseWriter, r *http.Request) {
-	h.Called(rw, r)
+func (h *GiteaHandlerMock) HandleSynchronize(r *http.Request) (int, string) {
+	h.Called(r)
+	return http.StatusOK, "test-execution"
 }
 
-func (h *GiteaHandlerMock) HandleComment(rw http.ResponseWriter, r *http.Request) {
-	h.Called(rw, r)
+func (h *GiteaHandlerMock) HandleComment(r *http.Request) (int, string) {
+	h.Called(r)
+	return http.StatusOK, "test-execution"
 }
 
 type GiteaSdkMock struct {
@@ -83,6 +86,8 @@ func (h *SQSdkMock) ComposeGiteaComment(data *sqSdk.CommentComposeData) (string,
 // SETUP: mute logs
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
+	gin.DefaultWriter = ioutil.Discard
+	gin.DefaultErrorWriter = ioutil.Discard
 	log.SetOutput(ioutil.Discard)
 	os.Exit(m.Run())
 }
@@ -113,7 +118,7 @@ func TestSonarQubeAPIRouteMissingProjectHeader(t *testing.T) {
 
 func TestSonarQubeAPIRouteProcessing(t *testing.T) {
 	sonarQubeHandlerMock := new(SonarQubeHandlerMock)
-	sonarQubeHandlerMock.On("Handle", mock.Anything, mock.Anything).Return(nil)
+	sonarQubeHandlerMock.On("Handle", mock.IsType(&http.Request{}))
 
 	router := New(new(GiteaHandlerMock), sonarQubeHandlerMock)
 
@@ -124,6 +129,7 @@ func TestSonarQubeAPIRouteProcessing(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	sonarQubeHandlerMock.AssertNumberOfCalls(t, "Handle", 1)
+	sonarQubeHandlerMock.AssertExpectations(t)
 }
 
 func TestGiteaAPIRouteMissingEventHeader(t *testing.T) {
@@ -139,7 +145,7 @@ func TestGiteaAPIRouteMissingEventHeader(t *testing.T) {
 func TestGiteaAPIRouteSynchronizeProcessing(t *testing.T) {
 	giteaHandlerMock := new(GiteaHandlerMock)
 	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Return(nil)
-	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Return(nil)
+	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Maybe()
 
 	router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
 
@@ -151,11 +157,12 @@ func TestGiteaAPIRouteSynchronizeProcessing(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 1)
 	giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 0)
+	giteaHandlerMock.AssertExpectations(t)
 }
 
 func TestGiteaAPIRouteCommentProcessing(t *testing.T) {
 	giteaHandlerMock := new(GiteaHandlerMock)
-	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Return(nil)
+	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Maybe()
 	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Return(nil)
 
 	router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
@@ -168,12 +175,13 @@ func TestGiteaAPIRouteCommentProcessing(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 0)
 	giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 1)
+	giteaHandlerMock.AssertExpectations(t)
 }
 
 func TestGiteaAPIRouteUnknownEvent(t *testing.T) {
 	giteaHandlerMock := new(GiteaHandlerMock)
-	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Return(nil)
-	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Return(nil)
+	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Maybe()
+	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Maybe()
 
 	router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
 
@@ -185,4 +193,5 @@ func TestGiteaAPIRouteUnknownEvent(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 0)
 	giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 0)
+	giteaHandlerMock.AssertExpectations(t)
 }

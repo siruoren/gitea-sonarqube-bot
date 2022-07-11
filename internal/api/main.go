@@ -40,7 +40,10 @@ func (s *ApiServer) setup() {
 			return
 		}
 
-		s.sonarQubeWebhookHandler.Handle(c.Writer, c.Request)
+		status, response := s.sonarQubeWebhookHandler.Handle(c.Request)
+		c.JSON(status, gin.H{
+			"message": response,
+		})
 	}).POST("/hooks/gitea", func(c *gin.Context) {
 		h := validGiteaEndpointHeader{}
 
@@ -49,16 +52,22 @@ func (s *ApiServer) setup() {
 			return
 		}
 
+		var status int
+		var response string
+
 		switch h.GiteaEvent {
 		case "pull_request":
-			s.giteaWebhookHandler.HandleSynchronize(c.Writer, c.Request)
+			status, response = s.giteaWebhookHandler.HandleSynchronize(c.Request)
 		case "issue_comment":
-			s.giteaWebhookHandler.HandleComment(c.Writer, c.Request)
+			status, response = s.giteaWebhookHandler.HandleComment(c.Request)
 		default:
-			c.JSON(http.StatusOK, gin.H{
-				"message": "ignore unknown event",
-			})
+			status = http.StatusOK
+			response = "ignore unknown event"
 		}
+
+		c.JSON(status, gin.H{
+			"message": response,
+		})
 	})
 }
 

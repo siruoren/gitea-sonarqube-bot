@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,8 +12,8 @@ import (
 )
 
 type GiteaWebhookHandlerInferface interface {
-	HandleSynchronize(rw http.ResponseWriter, r *http.Request)
-	HandleComment(rw http.ResponseWriter, r *http.Request)
+	HandleSynchronize(r *http.Request) (int, string)
+	HandleComment(r *http.Request) (int, string)
 }
 
 type GiteaWebhookHandler struct {
@@ -23,7 +21,7 @@ type GiteaWebhookHandler struct {
 	sqSdk    sqSdk.SonarQubeSdkInterface
 }
 
-func (h *GiteaWebhookHandler) parseBody(rw http.ResponseWriter, r *http.Request) ([]byte, error) {
+func (h *GiteaWebhookHandler) parseBody(r *http.Request) ([]byte, error) {
 	if r.Body != nil {
 		defer r.Body.Close()
 	}
@@ -32,82 +30,62 @@ func (h *GiteaWebhookHandler) parseBody(rw http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		log.Printf("Error reading request body %s", err.Error())
-		rw.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
 		return nil, err
 	}
 
 	return raw, nil
 }
 
-func (h *GiteaWebhookHandler) HandleSynchronize(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-
-	raw, err := h.parseBody(rw, r)
+func (h *GiteaWebhookHandler) HandleSynchronize(r *http.Request) (int, string) {
+	raw, err := h.parseBody(r)
 	if err != nil {
-		return
+		return http.StatusInternalServerError, err.Error()
 	}
 
 	ok, err := isValidWebhook(raw, settings.Gitea.Webhook.Secret, r.Header.Get("X-Gitea-Signature"), "Gitea")
 	if !ok {
 		log.Print(err.Error())
-		rw.WriteHeader(http.StatusPreconditionFailed)
-		io.WriteString(rw, fmt.Sprint(`{"message": "Webhook validation failed. Request rejected."}`))
-		return
+		return http.StatusPreconditionFailed, "Webhook validation failed. Request rejected."
 	}
 
 	w, ok := webhook.NewPullWebhook(raw)
 	if !ok {
-		rw.WriteHeader(http.StatusUnprocessableEntity)
-		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
-		return
+		return http.StatusUnprocessableEntity, "Error parsing POST body."
 	}
 
 	if err := w.Validate(); err != nil {
-		rw.WriteHeader(http.StatusOK)
-		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
-		return
+		return http.StatusOK, err.Error()
 	}
 
-	rw.WriteHeader(http.StatusOK)
-	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
-
 	w.ProcessData(h.giteaSdk, h.sqSdk)
+
+	return http.StatusOK, "Processing data. See bot logs for details."
 }
 
-func (h *GiteaWebhookHandler) HandleComment(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-
-	raw, err := h.parseBody(rw, r)
+func (h *GiteaWebhookHandler) HandleComment(r *http.Request) (int, string) {
+	raw, err := h.parseBody(r)
 	if err != nil {
-		return
+		return http.StatusInternalServerError, err.Error()
 	}
 
 	ok, err := isValidWebhook(raw, settings.Gitea.Webhook.Secret, r.Header.Get("X-Gitea-Signature"), "Gitea")
 	if !ok {
 		log.Print(err.Error())
-		rw.WriteHeader(http.StatusPreconditionFailed)
-		io.WriteString(rw, `{"message": "Webhook validation failed. Request rejected."}`)
-		return
+		return http.StatusPreconditionFailed, "Webhook validation failed. Request rejected."
 	}
 
 	w, ok := webhook.NewCommentWebhook(raw)
 	if !ok {
-		rw.WriteHeader(http.StatusUnprocessableEntity)
-		io.WriteString(rw, `{"message": "Error parsing POST body."}`)
-		return
+		return http.StatusUnprocessableEntity, "Error parsing POST body."
 	}
 
 	if err := w.Validate(); err != nil {
-		rw.WriteHeader(http.StatusOK)
-		io.WriteString(rw, fmt.Sprintf(`{"message": "%s"}`, err.Error()))
-		return
+		return http.StatusOK, err.Error()
 	}
 
-	rw.WriteHeader(http.StatusOK)
-	io.WriteString(rw, `{"message": "Processing data. See bot logs for details."}`)
-
 	w.ProcessData(h.giteaSdk, h.sqSdk)
+
+	return http.StatusOK, "Processing data. See bot logs for details."
 }
 
 func NewGiteaWebhookHandler(g giteaSdk.GiteaSdkInterface, sq sqSdk.SonarQubeSdkInterface) GiteaWebhookHandlerInferface {
