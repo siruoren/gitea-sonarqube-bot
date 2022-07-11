@@ -15,10 +15,10 @@
 
 ```bash
 # Build docker environment
-docker build -t gitea-sonarqube-pr-bot/dev -f contrib/Dockerfile contrib
+docker build -t gitea-sonarqube-bot/dev -f contrib/Dockerfile contrib
 
 # Start the environment
-docker run --rm -it -p 49182:3000 -v "$(pwd):/projects" gitea-sonarqube-pr-bot/dev
+docker run --rm -it -p 49182:3000 -v "$(pwd):/projects" gitea-sonarqube-bot/dev
 ```
 
 ## Build and Run
@@ -55,7 +55,7 @@ make helm-params
 For local purposes
 
 ```bash
-docker build -t gitea-sonarqube-pr-bot/prod .
+docker build -t gitea-sonarqube-bot/prod .
 ```
 
 **Docker image**

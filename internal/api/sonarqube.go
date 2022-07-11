@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
-	"gitea-sonarqube-pr-bot/internal/settings"
-	webhook "gitea-sonarqube-pr-bot/internal/webhooks/sonarqube"
+	giteaSdk "gitea-sonarqube-bot/internal/clients/gitea"
+	sqSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
+	"gitea-sonarqube-bot/internal/settings"
+	webhook "gitea-sonarqube-bot/internal/webhooks/sonarqube"
 )
 
 type SonarQubeWebhookHandlerInferface interface {

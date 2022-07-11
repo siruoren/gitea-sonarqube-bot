@@ -26,7 +26,7 @@ sonarqube:
   additionalMetrics: []
 projects:
   - sonarqube:
-      key: gitea-sonarqube-pr-bot
+      key: gitea-sonarqube-bot
     gitea:
       owner: example-organization
       name: pr-bot
@@ -130,7 +130,7 @@ sonarqube:
   additionalMetrics: "new_security_hotspots"
 projects:
   - sonarqube:
-      key: gitea-sonarqube-pr-bot
+      key: gitea-sonarqube-bot
     gitea:
       owner: example-organization
       name: pr-bot
@@ -203,7 +203,7 @@ sonarqube:
     value: fake-sonarqube-token
 projects:
   - sonarqube:
-      key: gitea-sonarqube-pr-bot
+      key: gitea-sonarqube-bot
     gitea:
       owner: example-organization
       name: pr-bot
@@ -261,7 +261,7 @@ func TestLoadProjectsStructure(t *testing.T) {
 	expectedProjects := []Project{
 		{
 			SonarQube: struct{ Key string }{
-				Key: "gitea-sonarqube-pr-bot",
+				Key: "gitea-sonarqube-bot",
 			},
 			Gitea: GiteaRepository{
 				Owner: "example-organization",
@@ -319,7 +319,7 @@ sonarqube:
   additionalMetrics: "new_security_hotspots"
 projects:
   - sonarqube:
-      key: gitea-sonarqube-pr-bot
+      key: gitea-sonarqube-bot
     gitea:
       owner: example-organization
       name: pr-bot

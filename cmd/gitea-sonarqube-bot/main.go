@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"gitea-sonarqube-pr-bot/internal/api"
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
-	sonarQubeSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
-	"gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-bot/internal/api"
+	giteaSdk "gitea-sonarqube-bot/internal/clients/gitea"
+	sonarQubeSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
+	"gitea-sonarqube-bot/internal/settings"
 
 	"github.com/urfave/cli/v2"
 )

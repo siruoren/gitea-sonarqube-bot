@@ -1,5 +1,5 @@
 {
-  "name": "gitea-sonarqube-pr-bot",
+  "name": "gitea-sonarqube-bot",
   "description": "Integrate SonarQube analysis into Gitea Pull Requests",
   "author": "Steven Kriegler <sk.bunsenbrenner@gmail.com>",
   "license": "MIT",

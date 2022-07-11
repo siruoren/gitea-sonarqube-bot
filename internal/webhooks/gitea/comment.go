@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"gitea-sonarqube-pr-bot/internal/actions"
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
-	"gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-bot/internal/actions"
+	giteaSdk "gitea-sonarqube-bot/internal/clients/gitea"
+	sqSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
+	"gitea-sonarqube-bot/internal/settings"
 )
 
 type issue struct {

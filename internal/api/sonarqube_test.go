@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"testing"
 
-	"gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-bot/internal/settings"
 
 	"github.com/stretchr/testify/assert"
 )

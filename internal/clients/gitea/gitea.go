@@ -2,7 +2,7 @@ package gitea
 
 import (
 	"fmt"
-	"gitea-sonarqube-pr-bot/internal/settings"
+	"gitea-sonarqube-bot/internal/settings"
 	"log"
 
 	"code.gitea.io/sdk/gitea"
@@ -31,7 +31,7 @@ func (sdk *GiteaSdk) PostComment(repo settings.GiteaRepository, idx int, msg str
 func (sdk *GiteaSdk) UpdateStatus(repo settings.GiteaRepository, ref string, details StatusDetails) error {
 	opt := gitea.CreateStatusOption{
 		TargetURL:   details.Url,
-		Context:     "gitea-sonarqube-pr-bot",
+		Context:     "gitea-sonarqube-bot",
 		Description: details.Message,
 		State:       gitea.StatusState(details.State),
 	}

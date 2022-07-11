@@ -1,4 +1,4 @@
-module gitea-sonarqube-pr-bot
+module gitea-sonarqube-bot
 
 go 1.18
 

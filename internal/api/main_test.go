@@ -9,9 +9,9 @@ import (
 	"os"
 	"testing"
 
-	giteaSdk "gitea-sonarqube-pr-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-pr-bot/internal/clients/sonarqube"
-	"gitea-sonarqube-pr-bot/internal/settings"
+	giteaSdk "gitea-sonarqube-bot/internal/clients/gitea"
+	sqSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
+	"gitea-sonarqube-bot/internal/settings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
