@@ -14,8 +14,14 @@ type GiteaSdkInterface interface {
 	DetermineHEAD(settings.GiteaRepository, int64) (string, error)
 }
 
+type ClientInterface interface {
+	CreateIssueComment(owner, repo string, index int64, opt gitea.CreateIssueCommentOption) (*gitea.Comment, *gitea.Response, error)
+	CreateStatus(owner, repo, sha string, opts gitea.CreateStatusOption) (*gitea.Status, *gitea.Response, error)
+	GetPullRequest(owner, repo string, index int64) (*gitea.PullRequest, *gitea.Response, error)
+}
+
 type GiteaSdk struct {
-	client *gitea.Client
+	client ClientInterface
 }
 
 func (sdk *GiteaSdk) PostComment(repo settings.GiteaRepository, idx int, msg string) error {
@@ -53,8 +59,8 @@ func (sdk *GiteaSdk) DetermineHEAD(repo settings.GiteaRepository, idx int64) (st
 	return pr.Head.Sha, nil
 }
 
-func New() *GiteaSdk {
-	client, err := gitea.NewClient(settings.Gitea.Url, gitea.SetToken(settings.Gitea.Token.Value))
+func New[T ClientInterface](configuration *settings.GiteaConfig, newClient func(url string, options ...gitea.ClientOption) (T, error)) *GiteaSdk {
+	client, err := newClient(configuration.Url, gitea.SetToken(configuration.Token.Value))
 	if err != nil {
 		panic(fmt.Errorf("cannot initialize Gitea client: %w", err))
 	}

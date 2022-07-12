@@ -16,6 +16,7 @@ import (
 	sonarQubeSdk "codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/clients/sonarqube"
 	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/settings"
 
+	"code.gitea.io/sdk/gitea"
 	"github.com/urfave/cli/v2"
 )
 
@@ -61,8 +62,8 @@ func serveApi(c *cli.Context) error {
 	log.Println("Hi! I'm Gitea SonarQube Bot. At your service.")
 	log.Println("Config file in use:", config)
 
-	giteaHandler := api.NewGiteaWebhookHandler(giteaSdk.New(), sonarQubeSdk.New(&settings.SonarQube))
-	sqHandler := api.NewSonarQubeWebhookHandler(giteaSdk.New(), sonarQubeSdk.New(&settings.SonarQube))
+	giteaHandler := api.NewGiteaWebhookHandler(giteaSdk.New(&settings.Gitea, gitea.NewClient), sonarQubeSdk.New(&settings.SonarQube))
+	sqHandler := api.NewSonarQubeWebhookHandler(giteaSdk.New(&settings.Gitea, gitea.NewClient), sonarQubeSdk.New(&settings.SonarQube))
 	server := api.New(giteaHandler, sqHandler)
 
 	srv := &http.Server{

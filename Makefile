@@ -10,7 +10,8 @@ help:
 	@echo " - test    	                       Run full test suite"
 	@echo " - test p=./path/to/package         Run test suite for specific package"
 	@echo " - test\#SpecificTestName           Run a specific"
-	@echo " - coverage    	                   Run full test suite and generates coverage report as HTML file"
+	@echo " - coverage    	                   Run full test suite and generate coverage report as HTML file"
+	@echo " - coverage p=./path/to/package     Run test suite for specific package and generate coverage report as HTML file"
 	@echo " - helm-params                      Auto-generates 'Parameters' section of 'helm/README.md' based on comments in values.yaml"
 	@echo " - helm-pack                        Prepares Helm Chart release artifacts for pushing to 'charts' branch"
 	@echo " - dep                              Dependency maintenance (tidy, vendor, verify)"
@@ -44,8 +45,13 @@ test-ci:
 	go test -mod=vendor -coverprofile=cover.out -json ./... > test-report.out
 
 coverage:
+ifdef p
+	go test -coverprofile=cover.out $(p)
+	go tool cover -html=cover.out -o cover.html
+else
 	go test -coverprofile=cover.out ./...
 	go tool cover -html=cover.out -o cover.html
+endif
 
 helm-params:
 	npm install
