@@ -61,8 +61,8 @@ func serveApi(c *cli.Context) error {
 	log.Println("Hi! I'm Gitea SonarQube Bot. At your service.")
 	log.Println("Config file in use:", config)
 
-	giteaHandler := api.NewGiteaWebhookHandler(giteaSdk.New(), sonarQubeSdk.New())
-	sqHandler := api.NewSonarQubeWebhookHandler(giteaSdk.New(), sonarQubeSdk.New())
+	giteaHandler := api.NewGiteaWebhookHandler(giteaSdk.New(), sonarQubeSdk.New(&settings.SonarQube))
+	sqHandler := api.NewSonarQubeWebhookHandler(giteaSdk.New(), sonarQubeSdk.New(&settings.SonarQube))
 	server := api.New(giteaHandler, sqHandler)
 
 	srv := &http.Server{

@@ -93,16 +93,15 @@ type SonarQubeSdk struct {
 	client      ClientInterface
 	bodyReader  BodyReader
 	httpRequest HttpRequest
-	baseUrl     string
-	token       string
+	settings    *settings.SonarQubeConfig
 }
 
 func (sdk *SonarQubeSdk) GetPullRequestUrl(project string, index int64) string {
-	return fmt.Sprintf("%s/dashboard?id=%s&pullRequest=%s", sdk.baseUrl, project, PRNameFromIndex(index))
+	return fmt.Sprintf("%s/dashboard?id=%s&pullRequest=%s", sdk.settings.Url, project, PRNameFromIndex(index))
 }
 
 func (sdk *SonarQubeSdk) fetchPullRequests(project string) (*PullsResponse, error) {
-	url := fmt.Sprintf("%s/api/project_pull_requests/list?project=%s", sdk.baseUrl, project)
+	url := fmt.Sprintf("%s/api/project_pull_requests/list?project=%s", sdk.settings.Url, project)
 	request, err := sdk.httpRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -137,7 +136,7 @@ func (sdk *SonarQubeSdk) GetPullRequest(project string, index int64) (*PullReque
 }
 
 func (sdk *SonarQubeSdk) GetMeasures(project string, branch string) (*MeasuresResponse, error) {
-	url := fmt.Sprintf("%s/api/measures/component?additionalFields=metrics&metricKeys=%s&component=%s&pullRequest=%s", sdk.baseUrl, settings.SonarQube.GetMetricsList(), project, branch)
+	url := fmt.Sprintf("%s/api/measures/component?additionalFields=metrics&metricKeys=%s&component=%s&pullRequest=%s", sdk.settings.Url, settings.SonarQube.GetMetricsList(), project, branch)
 	request, err := sdk.httpRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -174,16 +173,15 @@ func (sdk *SonarQubeSdk) ComposeGiteaComment(data *CommentComposeData) (string, 
 }
 
 func (sdk *SonarQubeSdk) basicAuth() string {
-	auth := []byte(fmt.Sprintf("%s:", sdk.token))
+	auth := []byte(fmt.Sprintf("%s:", sdk.settings.Token.Value))
 	return fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString(auth))
 }
 
-func New() *SonarQubeSdk {
+func New(configuration *settings.SonarQubeConfig) *SonarQubeSdk {
 	return &SonarQubeSdk{
 		client:      &http.Client{},
 		bodyReader:  io.ReadAll,
 		httpRequest: http.NewRequest,
-		baseUrl:     settings.SonarQube.Url,
-		token:       settings.SonarQube.Token.Value,
+		settings:    configuration,
 	}
 }

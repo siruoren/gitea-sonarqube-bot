@@ -80,7 +80,9 @@ func TestGetRenderedQualityGate(t *testing.T) {
 
 func TestGetPullRequestUrl(t *testing.T) {
 	sdk := &SonarQubeSdk{
-		baseUrl: "https://sonarqube.example.com",
+		settings: &settings.SonarQubeConfig{
+			Url: "https://sonarqube.example.com",
+		},
 	}
 	settings.Pattern = &settings.PatternConfig{
 		Template: "PR-%d",
@@ -100,7 +102,11 @@ func TestRetrieveDataFromApi(t *testing.T) {
 			w.Write([]byte(`{"pullRequests":[{"key":"PR-1","title":"pr-branch","branch":"pr-branch","base":"main","status":{"qualityGateStatus":"OK","bugs":0,"vulnerabilities":0,"codeSmells":0},"analysisDate":"2022-06-12T11:23:09+0000","target":"main"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -121,7 +127,11 @@ func TestRetrieveDataFromApi(t *testing.T) {
 	t.Run("Internal error", func(t *testing.T) {
 		expected := fmt.Errorf("This error indicates an error while performing the request")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 				recoder:       httptest.NewRecorder(),
@@ -142,7 +152,11 @@ func TestRetrieveDataFromApi(t *testing.T) {
 			recorder.Code = http.StatusUnauthorized
 		})
 		sdk := &SonarQubeSdk{
-			token: "simulated-invalid-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "simulated-invalid-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       recorder,
@@ -163,7 +177,11 @@ func TestRetrieveDataFromApi(t *testing.T) {
 		})
 		expected := fmt.Errorf("Error reading body content")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -185,7 +203,11 @@ func TestRetrieveDataFromApi(t *testing.T) {
 			w.Write([]byte(`{"pullReq`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -207,7 +229,11 @@ func TestFetchPullRequests(t *testing.T) {
 			w.Write([]byte(`{"pullRequests":[{"key":"PR-1","title":"pr-branch","branch":"pr-branch","base":"main","status":{"qualityGateStatus":"OK","bugs":0,"vulnerabilities":0,"codeSmells":0},"analysisDate":"2022-06-12T11:23:09+0000","target":"main"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -231,7 +257,11 @@ func TestFetchPullRequests(t *testing.T) {
 		})
 		expected := fmt.Errorf("Some simulated error")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -254,7 +284,11 @@ func TestFetchPullRequests(t *testing.T) {
 		})
 		expected := fmt.Errorf("Some simulated error")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -276,7 +310,11 @@ func TestFetchPullRequests(t *testing.T) {
 			w.Write([]byte(`{"errors":[{"msg":"Project 'test-project' not found"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -303,7 +341,11 @@ func TestGetPullRequest(t *testing.T) {
 			w.Write([]byte(`{"pullRequests":[{"key":"PR-1","title":"pr-branch","branch":"pr-branch","base":"main","status":{"qualityGateStatus":"OK","bugs":0,"vulnerabilities":0,"codeSmells":0},"analysisDate":"2022-06-12T11:23:09+0000","target":"main"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -331,7 +373,11 @@ func TestGetPullRequest(t *testing.T) {
 		})
 		expected := fmt.Errorf("Some simulated error")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -358,7 +404,11 @@ func TestGetPullRequest(t *testing.T) {
 			w.Write([]byte(`{"pullRequests":[{"key":"PR-1","title":"pr-branch","branch":"pr-branch","base":"main","status":{"qualityGateStatus":"OK","bugs":0,"vulnerabilities":0,"codeSmells":0},"analysisDate":"2022-06-12T11:23:09+0000","target":"main"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -386,7 +436,11 @@ func TestGetMeasures(t *testing.T) {
 			w.Write([]byte(`{"component":{"key":"test-project","name":"Test Project","qualifier":"TRK","measures":[{"metric":"bugs","value":"0","bestValue":true}],"pullRequest":"PR-1"},"metrics":[{"key":"bugs","name":"Bugs","description":"Bugs","domain":"Reliability","type":"INT","higherValuesAreBetter":false,"qualitative":false,"hidden":false,"custom":false,"bestValue":"0"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -410,7 +464,11 @@ func TestGetMeasures(t *testing.T) {
 		})
 		expected := fmt.Errorf("Some simulated error")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -433,7 +491,11 @@ func TestGetMeasures(t *testing.T) {
 		})
 		expected := fmt.Errorf("Some simulated error")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -455,7 +517,11 @@ func TestGetMeasures(t *testing.T) {
 			w.Write([]byte(`{"errors":[{"msg":"Component 'non-existing-project' of pull request 'PR-1' not found"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -479,7 +545,11 @@ func TestComposeGiteaComment(t *testing.T) {
 			w.Write([]byte(`{"component":{"key":"test-project","name":"Test Project","qualifier":"TRK","measures":[{"metric":"bugs","value":"10","bestValue":false}],"pullRequest":"PR-1"},"metrics":[{"key":"bugs","name":"Bugs","description":"Bugs","domain":"Reliability","type":"INT","higherValuesAreBetter":false,"qualitative":false,"hidden":false,"custom":false,"bestValue":"0"}]}`))
 		})
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -512,7 +582,11 @@ func TestComposeGiteaComment(t *testing.T) {
 		})
 		expected := fmt.Errorf("Expected error from GetMeasures")
 		sdk := &SonarQubeSdk{
-			token: "test-token",
+			settings: &settings.SonarQubeConfig{
+				Token: &settings.Token{
+					Value: "test-token",
+				},
+			},
 			client: &ClientMock{
 				handler:       handler,
 				recoder:       httptest.NewRecorder(),
@@ -536,11 +610,13 @@ func TestComposeGiteaComment(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	settings.SonarQube = settings.SonarQubeConfig{
+	config := &settings.SonarQubeConfig{
 		Url: "http://example.com",
 		Token: &settings.Token{
 			Value: "test-token",
 		},
 	}
-	assert.IsType(t, &SonarQubeSdk{}, New(), "")
+	actual := New(config)
+	assert.IsType(t, &SonarQubeSdk{}, actual, "Unexpected return type")
+	assert.Equal(t, config, actual.settings)
 }
