@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"gitea-sonarqube-bot/internal/actions"
-	"gitea-sonarqube-bot/internal/settings"
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/actions"
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/settings"
 )
 
 func ParsePRIndex(name string) (int, error) {

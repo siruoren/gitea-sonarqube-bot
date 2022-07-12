@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"gitea-sonarqube-bot/internal/actions"
-	giteaSdk "gitea-sonarqube-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
-	"gitea-sonarqube-bot/internal/settings"
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/actions"
+	giteaSdk "codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/clients/gitea"
+	sqSdk "codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/clients/sonarqube"
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/settings"
 )
 
 type issue struct {

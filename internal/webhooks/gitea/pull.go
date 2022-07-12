@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	giteaSdk "gitea-sonarqube-bot/internal/clients/gitea"
-	sqSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
-	"gitea-sonarqube-bot/internal/settings"
+	giteaSdk "codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/clients/gitea"
+	sqSdk "codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/clients/sonarqube"
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/settings"
 )
 
 type pullRequest struct {

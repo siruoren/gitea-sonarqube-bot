@@ -1,4 +1,4 @@
-module gitea-sonarqube-bot
+module codeberg.org/justusbunsi/gitea-sonarqube-bot
 
 go 1.18
 

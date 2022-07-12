@@ -2,10 +2,10 @@ package gitea
 
 import (
 	"fmt"
-	"gitea-sonarqube-bot/internal/settings"
 	"log"
 
 	"code.gitea.io/sdk/gitea"
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/settings"
 )
 
 type GiteaSdkInterface interface {

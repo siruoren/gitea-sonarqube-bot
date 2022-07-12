@@ -8,8 +8,7 @@ import (
 	"regexp"
 	"testing"
 
-	"gitea-sonarqube-bot/internal/settings"
-
+	"codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/settings"
 	"github.com/stretchr/testify/assert"
 )
 

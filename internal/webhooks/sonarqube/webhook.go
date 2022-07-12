@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	sqSdk "gitea-sonarqube-bot/internal/clients/sonarqube"
+	sqSdk "codeberg.org/justusbunsi/gitea-sonarqube-bot/internal/clients/sonarqube"
 )
 
 type properties struct {
