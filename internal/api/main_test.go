@@ -93,105 +93,115 @@ func TestMain(m *testing.M) {
 }
 
 func TestNonAPIRoutes(t *testing.T) {
-	router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
+	t.Run("favicon", func(t *testing.T) {
+		router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/favicon.ico", nil)
-	router.Engine.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNoContent, w.Code)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/favicon.ico", nil)
+		router.Engine.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusNoContent, w.Code)
+	})
 
-	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/ping", nil)
-	router.Engine.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
+	t.Run("ping", func(t *testing.T) {
+		router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/ping", nil)
+		router.Engine.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
 }
 
-func TestSonarQubeAPIRouteMissingProjectHeader(t *testing.T) {
-	router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
+func TestSonarQubeAPIRoute(t *testing.T) {
+	t.Run("Missing project header", func(t *testing.T) {
+		router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/hooks/sonarqube", bytes.NewBuffer([]byte(`{}`)))
-	router.Engine.ServeHTTP(w, req)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/hooks/sonarqube", bytes.NewBuffer([]byte(`{}`)))
+		router.Engine.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	t.Run("Processing", func(t *testing.T) {
+		sonarQubeHandlerMock := new(SonarQubeHandlerMock)
+		sonarQubeHandlerMock.On("Handle", mock.IsType(&http.Request{}))
+
+		router := New(new(GiteaHandlerMock), sonarQubeHandlerMock)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/hooks/sonarqube", bytes.NewBuffer([]byte(`{}`)))
+		req.Header.Add("X-SonarQube-Project", "gitea-sonarqube-bot")
+		router.Engine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		sonarQubeHandlerMock.AssertNumberOfCalls(t, "Handle", 1)
+		sonarQubeHandlerMock.AssertExpectations(t)
+	})
 }
 
-func TestSonarQubeAPIRouteProcessing(t *testing.T) {
-	sonarQubeHandlerMock := new(SonarQubeHandlerMock)
-	sonarQubeHandlerMock.On("Handle", mock.IsType(&http.Request{}))
+func TestGiteaAPIRoute(t *testing.T) {
+	t.Run("Missing event header", func(t *testing.T) {
+		router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
 
-	router := New(new(GiteaHandlerMock), sonarQubeHandlerMock)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
+		router.Engine.ServeHTTP(w, req)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/hooks/sonarqube", bytes.NewBuffer([]byte(`{}`)))
-	req.Header.Add("X-SonarQube-Project", "gitea-sonarqube-bot")
-	router.Engine.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	sonarQubeHandlerMock.AssertNumberOfCalls(t, "Handle", 1)
-	sonarQubeHandlerMock.AssertExpectations(t)
-}
+	t.Run("Processing synchronize", func(t *testing.T) {
+		giteaHandlerMock := new(GiteaHandlerMock)
+		giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Return(nil)
+		giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Maybe()
 
-func TestGiteaAPIRouteMissingEventHeader(t *testing.T) {
-	router := New(new(GiteaHandlerMock), new(SonarQubeHandlerMock))
+		router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
-	router.Engine.ServeHTTP(w, req)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
+		req.Header.Add("X-Gitea-Event", "pull_request")
+		router.Engine.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
+		assert.Equal(t, http.StatusOK, w.Code)
+		giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 1)
+		giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 0)
+		giteaHandlerMock.AssertExpectations(t)
+	})
 
-func TestGiteaAPIRouteSynchronizeProcessing(t *testing.T) {
-	giteaHandlerMock := new(GiteaHandlerMock)
-	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Return(nil)
-	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Maybe()
+	t.Run("Processing comment", func(t *testing.T) {
+		giteaHandlerMock := new(GiteaHandlerMock)
+		giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Maybe()
+		giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Return(nil)
 
-	router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
+		router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
-	req.Header.Add("X-Gitea-Event", "pull_request")
-	router.Engine.ServeHTTP(w, req)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
+		req.Header.Add("X-Gitea-Event", "issue_comment")
+		router.Engine.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 1)
-	giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 0)
-	giteaHandlerMock.AssertExpectations(t)
-}
+		assert.Equal(t, http.StatusOK, w.Code)
+		giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 0)
+		giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 1)
+		giteaHandlerMock.AssertExpectations(t)
+	})
 
-func TestGiteaAPIRouteCommentProcessing(t *testing.T) {
-	giteaHandlerMock := new(GiteaHandlerMock)
-	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Maybe()
-	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Return(nil)
+	t.Run("Unknown event", func(t *testing.T) {
+		giteaHandlerMock := new(GiteaHandlerMock)
+		giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Maybe()
+		giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Maybe()
 
-	router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
+		router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
-	req.Header.Add("X-Gitea-Event", "issue_comment")
-	router.Engine.ServeHTTP(w, req)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
+		req.Header.Add("X-Gitea-Event", "unknown")
+		router.Engine.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 0)
-	giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 1)
-	giteaHandlerMock.AssertExpectations(t)
-}
-
-func TestGiteaAPIRouteUnknownEvent(t *testing.T) {
-	giteaHandlerMock := new(GiteaHandlerMock)
-	giteaHandlerMock.On("HandleSynchronize", mock.Anything, mock.Anything).Maybe()
-	giteaHandlerMock.On("HandleComment", mock.Anything, mock.Anything).Maybe()
-
-	router := New(giteaHandlerMock, new(SonarQubeHandlerMock))
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/hooks/gitea", bytes.NewBuffer([]byte(`{}`)))
-	req.Header.Add("X-Gitea-Event", "unknown")
-	router.Engine.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 0)
-	giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 0)
-	giteaHandlerMock.AssertExpectations(t)
+		assert.Equal(t, http.StatusOK, w.Code)
+		giteaHandlerMock.AssertNumberOfCalls(t, "HandleSynchronize", 0)
+		giteaHandlerMock.AssertNumberOfCalls(t, "HandleComment", 0)
+		giteaHandlerMock.AssertExpectations(t)
+	})
 }
