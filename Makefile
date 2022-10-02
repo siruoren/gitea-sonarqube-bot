@@ -5,12 +5,12 @@ export GO111MODULE=on
 help:
 	@echo "Make Routines:"
 	@echo " - build                            Build the bot"
-	@echo " - run    	                       Start the bot"
+	@echo " - run                              Start the bot"
 	@echo " - clean                            Delete generated files"
-	@echo " - test    	                       Run full test suite"
+	@echo " - test                             Run full test suite"
 	@echo " - test p=./path/to/package         Run test suite for specific package"
 	@echo " - test\#SpecificTestName           Run a specific"
-	@echo " - coverage    	                   Run full test suite and generate coverage report as HTML file"
+	@echo " - coverage                         Run full test suite and generate coverage report as HTML file"
 	@echo " - coverage p=./path/to/package     Run test suite for specific package and generate coverage report as HTML file"
 	@echo " - helm-params                      Auto-generates 'Parameters' section of 'helm/README.md' based on comments in values.yaml"
 	@echo " - helm-pack                        Prepares Helm Chart release artifacts for pushing to 'charts' branch"
@@ -18,10 +18,10 @@ help:
 	@echo " - dep-up                           Dependency upgrade (including auto-sync + auto-test)"
 	@echo " - vet                              Examine Go source code and reports suspicious parts"
 	@echo " - fmt                              Format the Go code"
-	@echo " - help    	                       Print this help"
+	@echo " - help                             Print this help"
 
 build:
-	GOARCH=amd64 GOOS=linux go build -mod=vendor -o ${BINARY_NAME} ./cmd/gitea-sonarqube-bot/
+	go build -mod=vendor -o ${BINARY_NAME} ./cmd/gitea-sonarqube-bot/
 
 run:
 	./${BINARY_NAME}
