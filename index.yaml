@@ -8,6 +8,36 @@ entries:
         - name: Container image
           url: https://hub.docker.com/r/justusbunsi/gitea-sonarqube-bot/
     apiVersion: v2
+    appVersion: v0.2.2
+    created: "2022-10-02T11:54:11.3372308Z"
+    description: Decorate Gitea Pull Requests with SonarQube analysis results
+    digest: b36d895d4793e7f6df146b2c725fd3c48acaaa76042cafc4ca16c05cc47ac01c
+    home: https://codeberg.org/justusbunsi/gitea-sonarqube-bot/
+    keywords:
+    - code-quality
+    - code-review
+    - git
+    - gitea
+    - pull-request
+    - sonarqube
+    - sonarcloud
+    maintainers:
+    - email: sk.bunsenbrenner@gmail.com
+      name: Steven Kriegler
+    name: gitea-sonarqube-bot
+    sources:
+    - https://codeberg.org/justusbunsi/gitea-sonarqube-bot/src/branch/main/helm
+    type: application
+    urls:
+    - https://codeberg.org/justusbunsi/gitea-sonarqube-bot/raw/branch/charts/gitea-sonarqube-bot-0.2.2.tgz
+    version: 0.2.2
+  - annotations:
+      artifacthub.io/links: |
+        - name: support
+          url: https://codeberg.org/justusbunsi/gitea-sonarqube-bot/issues
+        - name: Container image
+          url: https://hub.docker.com/r/justusbunsi/gitea-sonarqube-bot/
+    apiVersion: v2
     appVersion: v0.2.1
     created: "2022-06-18T13:19:50.9149899Z"
     description: A Helm Chart for running a bot to communicate between both Gitea
@@ -111,4 +141,4 @@ entries:
     urls:
     - https://codeberg.org/justusbunsi/gitea-sonarqube-bot/raw/branch/charts/gitea-sonarqube-bot-0.1.0.tgz
     version: 0.1.0
-generated: "2022-06-18T13:19:50.9095662Z"
+generated: "2022-10-02T11:54:11.3285277Z"
