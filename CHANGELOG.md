@@ -5,7 +5,7 @@
 ### 👻 Maintenance
 
 - Remove `fvbock/endless` dependency
-- Require Golang 1.18 for builds
+- Require Golang 1.19 for builds
 - Update base Docker images
 
 ## v0.2.1

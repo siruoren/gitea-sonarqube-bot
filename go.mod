@@ -1,6 +1,6 @@
 module codeberg.org/justusbunsi/gitea-sonarqube-bot
 
-go 1.18
+go 1.19
 
 require (
 	code.gitea.io/sdk/gitea v0.15.1
