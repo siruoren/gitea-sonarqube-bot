@@ -1,9 +1,9 @@
 apiVersion: v2
 name: gitea-sonarqube-bot
-description: A Helm Chart for running a bot to communicate between both Gitea and SonarQube
+description: Decorate Gitea Pull Requests with SonarQube analysis results
 type: application
-version: 0.2.1
-appVersion: "v0.2.1"
+version: 0.2.2
+appVersion: "v0.2.2"
 home: https://codeberg.org/justusbunsi/gitea-sonarqube-bot/
 maintainers:
   - name: Steven Kriegler

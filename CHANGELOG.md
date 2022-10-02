@@ -1,6 +1,10 @@
 # Changelog
 
-## Pending...
+## v0.2.2
+
+### ☸️ Helm Chart
+
+- Bump default image tag to `v0.2.2`
 
 ### 👻 Maintenance
 
