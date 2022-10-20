@@ -23,6 +23,6 @@
     "helm-params": "readme-generator --readme ./helm/README.md --values ./helm/values.yaml"
   },
   "devDependencies": {
-    "readme-generator-for-helm": "https://github.com/bitnami-labs/readme-generator-for-helm/tarball/main"
+    "@bitnami/readme-generator-for-helm": "^2.4.2"
   }
 }
